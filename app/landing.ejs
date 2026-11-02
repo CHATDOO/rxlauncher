@@ -11,12 +11,6 @@
             </div>
         </div>
         <div id="content">
-            <div id="navServerCodeContainer">
-                <span class="navServerCodeLabel">CODE :</span>
-                <input id="navServerCodeInput" type="text" placeholder="RX-8" autocomplete="off" spellcheck="false" />
-                <button id="navServerCodeSyncBtn">SYNC</button>
-                <span id="navServerCodeStatus"></span>
-            </div>
         </div>
         <div id="right">
             <div id="rightContainer">
@@ -39,6 +33,20 @@
                     </div>
                     <div class="mediaDivider"></div>
                     <div id="externalMedia">
+                        <div class="mediaContainer">
+                            <a href="https://rxcorp.me" class="mediaURL" id="websiteURL" title="Site Web RXCORP">
+                                <svg id="websiteSVG" class="mediaSVG" viewBox="0 0 24 24">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                                </svg>
+                            </a>
+                        </div>
+                        <div class="mediaContainer">
+                            <a href="https://panel.rxcorp.me" class="mediaURL" id="panelURL" title="Panel Serveur RXCORP">
+                                <svg id="panelSVG" class="mediaSVG" viewBox="0 0 24 24">
+                                    <path d="M4 1h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2zm0 8h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2zm0 8h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2zM6 4a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm0 8a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm0 8a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+                                </svg>
+                            </a>
+                        </div>
                         <div class="mediaContainer">
                             <a href="<%- lang('landing.mediaGitHubURL') %>" class="mediaURL" id="linkURL">
                                 <svg id="linkSVG" class="mediaSVG" viewBox="35.34 34.3575 70.68 68.71500">
@@ -154,6 +162,13 @@
                     <button id="launch_button"><%- lang('landing.launchButton') %></button>
                     <div class="bot_divider"></div>
                     <button id="server_selection_button" class="bot_label"><%- lang('landing.launchButtonPlaceholder') %></button>
+                    <div class="bot_divider"></div>
+                    <div id="navServerCodeContainer">
+                        <span class="navServerCodeLabel">CODE :</span>
+                        <input id="navServerCodeInput" type="text" placeholder="RX-8" autocomplete="off" spellcheck="false" />
+                        <button id="navServerCodeSyncBtn">SYNC</button>
+                        <span id="navServerCodeStatus"></span>
+                    </div>
                 </div>
                 <div id="launch_details">
                     <div id="launch_details_left">

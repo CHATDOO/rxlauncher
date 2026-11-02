@@ -15,6 +15,8 @@ newsButton = "ACTUS"
 launchButton = "JOUER"
 launchButtonPlaceholder = "&#8226; Sélectionner un Serveur"
 launchDetails = "Initialisation..."
+mediaWebsiteURL = "https://rxcorp.me"
+mediaPanelURL = "https://panel.rxcorp.me"
 mediaGitHubURL = "https://github.com/RXCORP-core/rxcorp-Launcher"
 mediaXURL = "#"
 mediaInstagramURL = "#"
@@ -22,6 +24,8 @@ mediaYouTubeURL = "#"
 mediaDiscordURL = "https://discord.gg/rxcorp"
 
 [ejs.settings]
+navNews = "Actualités"
+navStatus = "Statut Services"
 sourceGithubLink = "https://rxcorp.me"
 supportLink = "https://rxcorp.me/support"
 

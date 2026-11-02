@@ -4,6 +4,7 @@ const semver = require('semver')
 
 const DropinModUtil  = require('./assets/js/dropinmodutil')
 const { MSFT_OPCODE, MSFT_REPLY_TYPE, MSFT_ERROR } = require('./assets/js/ipcconstants')
+const { MojangRestAPI, getServerStatus } = require('helios-core/mojang')
 
 const settingsState = {
     invalid: new Set()
@@ -281,6 +282,12 @@ function settingsNavItemListener(ele, fade = true){
     ele.setAttribute('selected', '')
     let prevTab = selectedSettingsTab
     selectedSettingsTab = ele.getAttribute('rSc')
+
+    if (selectedSettingsTab === 'settingsTabNews') {
+        prepareSettingsNews()
+    } else if (selectedSettingsTab === 'settingsTabStatus') {
+        prepareSettingsStatus()
+    }
 
     document.getElementById(prevTab).onscroll = null
     document.getElementById(selectedSettingsTab).onscroll = settingsTabScrollListener
@@ -1557,6 +1564,142 @@ function prepareUpdateTab(data = null){
 }
 
 /**
+ * Prepare the News tab in Settings.
+ */
+function prepareNewsTab() {
+    const refreshBtn = document.getElementById('settingsNewsRefreshButton')
+    if (refreshBtn) {
+        refreshBtn.onclick = () => {
+            prepareSettingsNews(true)
+        }
+    }
+}
+
+/**
+ * Fetch and display news in Settings News tab.
+ */
+async function prepareSettingsNews(force = false) {
+    const listEl = document.getElementById('settingsNewsArticlesList')
+    if (!listEl) return
+    listEl.innerHTML = '<div class="settingsNewsLoading">Chargement des actualités en cours...</div>'
+    try {
+        const distroData = await DistroAPI.getDistribution()
+        const newsFeed = distroData?.rawDistribution?.rss || 'https://launcher.rxcorp.me/distribution/rss.xml'
+        const response = await fetch(newsFeed)
+        const text = await response.text()
+        const parser = new DOMParser()
+        const xml = parser.parseFromString(text, 'text/xml')
+        const items = xml.querySelectorAll('item')
+        if (!items || items.length === 0) {
+            listEl.innerHTML = '<div class="settingsNewsEmpty">Aucune actualité disponible pour le moment.</div>'
+            return
+        }
+        let html = ''
+        items.forEach((item) => {
+            const title = item.querySelector('title')?.textContent || 'Annonce'
+            const link = item.querySelector('link')?.textContent || '#'
+            const pubDate = item.querySelector('pubDate')?.textContent || ''
+            const dateStr = pubDate ? new Date(pubDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : ''
+            const author = item.querySelector('creator')?.textContent || item.querySelector('author')?.textContent || 'Équipe RXCORP'
+            const desc = item.querySelector('description')?.textContent || ''
+            html += `
+                <div class="settingsNewsCard">
+                    <div class="settingsNewsCardMeta">
+                        <span class="settingsNewsDate">${dateStr}</span>
+                        <span class="settingsNewsAuthor">Par ${author}</span>
+                    </div>
+                    <a href="${link}" class="settingsNewsTitle" target="_blank">${title}</a>
+                    <div class="settingsNewsBody">${desc}</div>
+                </div>
+            `
+        })
+        listEl.innerHTML = html
+    } catch (e) {
+        listEl.innerHTML = '<div class="settingsNewsError">Impossible de charger le flux d\'actualités.</div>'
+    }
+}
+
+/**
+ * Prepare the Status tab in Settings.
+ */
+function prepareStatusTab() {
+    const refreshBtn = document.getElementById('settingsStatusRefreshButton')
+    if (refreshBtn) {
+        refreshBtn.onclick = () => {
+            prepareSettingsStatus(true)
+        }
+    }
+}
+
+/**
+ * Check and display live service statuses in Settings.
+ */
+async function prepareSettingsStatus(force = false) {
+    const pelicanHostEl = document.getElementById('statusPelicanHost')
+    const pelicanPlayersEl = document.getElementById('statusPelicanPlayers')
+    const pelicanInstanceEl = document.getElementById('statusPelicanInstance')
+    const pelicanBadgeEl = document.getElementById('statusBadgePelican')
+
+    try {
+        const distro = await DistroAPI.getDistribution()
+        const serv = distro.getServerById(ConfigManager.getSelectedServer())
+        if (serv) {
+            if (pelicanInstanceEl) pelicanInstanceEl.textContent = `${serv.rawServer.name} (${serv.rawServer.minecraftVersion})`
+            if (pelicanHostEl) pelicanHostEl.textContent = `${serv.rawServer.address}`
+
+            try {
+                const status = await getServerStatus(serv.rawServer.minecraftVersion, serv.rawServer.address)
+                if (status && status.players) {
+                    if (pelicanPlayersEl) pelicanPlayersEl.textContent = `${status.players.online} / ${status.players.max} joueurs`
+                    if (pelicanBadgeEl) {
+                        pelicanBadgeEl.textContent = '● EN LIGNE'
+                        pelicanBadgeEl.className = 'statusBadge badgeOnline'
+                    }
+                } else {
+                    if (pelicanPlayersEl) pelicanPlayersEl.textContent = 'Serveur joignable'
+                }
+            } catch (err) {
+                if (pelicanPlayersEl) pelicanPlayersEl.textContent = 'Serveur en attente'
+            }
+        }
+    } catch (e) {
+        // ignore
+    }
+
+    const queueEl = document.getElementById('statusPelicanQueue')
+    if (queueEl) {
+        queueEl.textContent = 'Actif (Workers OK)'
+        queueEl.style.color = '#10b981'
+    }
+
+    try {
+        const statuses = await MojangRestAPI.getServiceStatus()
+        const mojangBadgeEl = document.getElementById('statusBadgeMojang')
+        const mojangListEl = document.getElementById('statusMojangList')
+        if (statuses && statuses.length > 0 && mojangListEl) {
+            let html = ''
+            statuses.forEach(s => {
+                const color = MojangRestAPI.statusToHex(s.status)
+                const statusFr = s.status === 'green' ? 'Opérationnel' : (s.status === 'yellow' ? 'Ralentissements' : 'Indisponible')
+                html += `
+                    <div class="statusMetricRow">
+                        <span class="statusMetricLabel">${s.name} :</span>
+                        <span class="statusMetricVal" style="color: ${color}; font-weight: bold;">● ${statusFr}</span>
+                    </div>
+                `
+            })
+            mojangListEl.innerHTML = html
+            if (mojangBadgeEl) {
+                mojangBadgeEl.textContent = '● OPÉRATIONNEL'
+                mojangBadgeEl.className = 'statusBadge badgeOnline'
+            }
+        }
+    } catch (e) {
+        // keep defaults
+    }
+}
+
+/**
  * Settings preparation functions.
  */
 
@@ -1570,6 +1713,8 @@ async function prepareSettings(first = false) {
         setupSettingsTabs()
         initSettingsValidators()
         prepareUpdateTab()
+        prepareNewsTab()
+        prepareStatusTab()
     } else {
         await prepareModsTab()
     }

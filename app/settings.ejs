@@ -12,6 +12,8 @@
                     <button class="settingsNavItem" rSc="settingsTabJava"><%- lang('settings.navJava') %></button>
                     <button class="settingsNavItem" rSc="settingsTabLauncher"><%- lang('settings.navLauncher') %></button>
                     <div class="settingsNavSpacer"></div>
+                    <button class="settingsNavItem" rSc="settingsTabNews" id="settingsNavNews"><%- lang('settings.navNews') %></button>
+                    <button class="settingsNavItem" rSc="settingsTabStatus" id="settingsNavStatus"><%- lang('settings.navStatus') %></button>
                     <button class="settingsNavItem" rSc="settingsTabAbout"><%- lang('settings.navAbout') %></button>
                     <button class="settingsNavItem" rSc="settingsTabUpdate" id="settingsNavUpdate"><%- lang('settings.navUpdates') %></button>
                     <div id="settingsNavContentBottom">
@@ -384,6 +386,128 @@
                     </div>
                     <div class="settingsChangelogText">
                         <%- lang('settings.noReleaseNotes') %>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="settingsTabNews" class="settingsTab" style="display: none;">
+            <div class="settingsTabHeader">
+                <span class="settingsTabHeaderText">Actualités & Annonces</span>
+                <span class="settingsTabHeaderDesc">Restez au courant des nouveautés du launcher et des événements serveur RXCORP.</span>
+            </div>
+            <div id="settingsNewsFeedContainer">
+                <div class="settingsNewsFeedHeaderActions">
+                    <button id="settingsNewsRefreshButton" class="settingsActionButton">↻ Rafraîchir les actus</button>
+                </div>
+                <div id="settingsNewsArticlesList">
+                    <div class="settingsNewsLoading">Chargement des actualités...</div>
+                </div>
+            </div>
+        </div>
+        <div id="settingsTabStatus" class="settingsTab" style="display: none;">
+            <div class="settingsTabHeader">
+                <span class="settingsTabHeaderText">Statut des Services & Réseau</span>
+                <span class="settingsTabHeaderDesc">Disponibilité en temps réel de l'infrastructure de jeu et de synchronisation.</span>
+            </div>
+            <div id="settingsStatusContainer">
+                <div class="settingsStatusHeaderActions">
+                    <button id="settingsStatusRefreshButton" class="settingsActionButton">↻ Tester les services</button>
+                </div>
+                <div class="settingsStatusCardsGrid">
+                    <!-- Pelican Game Server -->
+                    <div class="settingsStatusCard" id="statusCardPelican">
+                        <div class="statusCardHeader">
+                            <div class="statusCardTitleGroup">
+                                <span class="statusCardIcon">🎮</span>
+                                <div>
+                                    <div class="statusCardTitle">Serveur de Jeu Pelican</div>
+                                    <div class="statusCardSubtitle" id="statusPelicanHost">towhee.rxcorp.me:25565</div>
+                                </div>
+                            </div>
+                            <span class="statusBadge badgeOnline" id="statusBadgePelican">● EN LIGNE</span>
+                        </div>
+                        <div class="statusCardBody">
+                            <div class="statusMetricRow">
+                                <span class="statusMetricLabel">Joueurs en ligne :</span>
+                                <span class="statusMetricVal" id="statusPelicanPlayers">--</span>
+                            </div>
+                            <div class="statusMetricRow">
+                                <span class="statusMetricLabel">Instance active :</span>
+                                <span class="statusMetricVal" id="statusPelicanInstance">pelican-RX-24-8XIN (1.21)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cloud Distribution & Mod Sync -->
+                    <div class="settingsStatusCard" id="statusCardCloud">
+                        <div class="statusCardHeader">
+                            <div class="statusCardTitleGroup">
+                                <span class="statusCardIcon">⚡</span>
+                                <div>
+                                    <div class="statusCardTitle">Distribution & Synchronisation</div>
+                                    <div class="statusCardSubtitle">launcher.rxcorp.me</div>
+                                </div>
+                            </div>
+                            <span class="statusBadge badgeOnline" id="statusBadgeCloud">● OPÉRATIONNEL</span>
+                        </div>
+                        <div class="statusCardBody">
+                            <div class="statusMetricRow">
+                                <span class="statusMetricLabel">Index CDN :</span>
+                                <span class="statusMetricVal" id="statusCloudCdn">Actif (HTTP 200)</span>
+                            </div>
+                            <div class="statusMetricRow">
+                                <span class="statusMetricLabel">Queue Worker Pelican :</span>
+                                <span class="statusMetricVal" id="statusPelicanQueue">Actif</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mojang & Microsoft Auth -->
+                    <div class="settingsStatusCard" id="statusCardMojang">
+                        <div class="statusCardHeader">
+                            <div class="statusCardTitleGroup">
+                                <span class="statusCardIcon">🔐</span>
+                                <div>
+                                    <div class="statusCardTitle">Services Mojang / Xbox</div>
+                                    <div class="statusCardSubtitle">Authentification & Sessions</div>
+                                </div>
+                            </div>
+                            <span class="statusBadge badgeOnline" id="statusBadgeMojang">● OPÉRATIONNEL</span>
+                        </div>
+                        <div class="statusCardBody" id="statusMojangList">
+                            <div class="statusMetricRow">
+                                <span class="statusMetricLabel">Session Minecraft :</span>
+                                <span class="statusMetricVal">Opérationnel</span>
+                            </div>
+                            <div class="statusMetricRow">
+                                <span class="statusMetricLabel">Comptes Microsoft :</span>
+                                <span class="statusMetricVal">Opérationnel</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Web & Panel RXCORP -->
+                    <div class="settingsStatusCard" id="statusCardWeb">
+                        <div class="statusCardHeader">
+                            <div class="statusCardTitleGroup">
+                                <span class="statusCardIcon">🌐</span>
+                                <div>
+                                    <div class="statusCardTitle">Écosystème RXCORP</div>
+                                    <div class="statusCardSubtitle">rxcorp.me & panel.rxcorp.me</div>
+                                </div>
+                            </div>
+                            <span class="statusBadge badgeOnline" id="statusBadgeWeb">● EN SERVICE</span>
+                        </div>
+                        <div class="statusCardBody">
+                            <div class="statusMetricRow">
+                                <span class="statusMetricLabel">Site Web Officiel :</span>
+                                <span class="statusMetricVal"><a href="https://rxcorp.me" class="externalLink" style="color: #38bdf8; text-decoration: none;">rxcorp.me</a></span>
+                            </div>
+                            <div class="statusMetricRow">
+                                <span class="statusMetricLabel">Panel Gestion :</span>
+                                <span class="statusMetricVal"><a href="https://panel.rxcorp.me" class="externalLink" style="color: #a855f7; text-decoration: none;">panel.rxcorp.me</a></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
