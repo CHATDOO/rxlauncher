@@ -1024,3 +1024,100 @@ async function loadNews(){
 
     return await promise
 }
+
+// ==========================================
+// PELICAN SERVER CODE SYNCHRONIZATION
+// ==========================================
+
+const server_code_button = document.getElementById('server_code_button')
+if (server_code_button) {
+    server_code_button.onclick = () => {
+        toggleOverlay(true, true, 'serverCodeContent')
+        const input = document.getElementById('serverCodeInput')
+        if (input) {
+            input.value = ''
+            setTimeout(() => input.focus(), 150)
+        }
+        const feedback = document.getElementById('serverCodeFeedback')
+        if (feedback) feedback.style.display = 'none'
+    }
+}
+
+const openPelicanCodesLink = document.getElementById('openPelicanCodesLink')
+if (openPelicanCodesLink) {
+    openPelicanCodesLink.onclick = (e) => {
+        e.preventDefault()
+        try {
+            const { shell } = require('electron')
+            shell.openExternal('https://panel.rxcorp.me/launcher/codes')
+        } catch (err) {
+            console.error('Failed to open external link', err)
+        }
+    }
+}
+
+const serverCodeCancel = document.getElementById('serverCodeCancel')
+if (serverCodeCancel) {
+    serverCodeCancel.onclick = () => {
+        toggleOverlay(false)
+    }
+}
+
+const serverCodeConfirm = document.getElementById('serverCodeConfirm')
+if (serverCodeConfirm) {
+    serverCodeConfirm.onclick = async () => {
+        const input = document.getElementById('serverCodeInput')
+        const feedback = document.getElementById('serverCodeFeedback')
+        const code = input ? input.value.trim() : ''
+        if (!code) {
+            if (feedback) {
+                feedback.style.display = 'block'
+                feedback.style.color = '#ef4444'
+                feedback.textContent = 'Veuillez entrer un code serveur.'
+            }
+            return
+        }
+
+        if (feedback) {
+            feedback.style.display = 'block'
+            feedback.style.color = '#38bdf8'
+            feedback.textContent = 'Connexion au panel et synchronisation...'
+        }
+
+        try {
+            const response = await fetch(`https://panel.rxcorp.me/api/launcher/distribution/${encodeURIComponent(code)}`)
+            if (!response.ok) throw new Error('Code introuvable sur le panel (vérifiez sur panel.rxcorp.me/launcher/codes)')
+            const data = await response.json()
+            if (!data.servers || data.servers.length === 0) throw new Error('Aucun serveur associé à ce code')
+
+            const targetRaw = data.servers[0]
+            loggerLanding.info(`Server resolved via panel code: ${targetRaw.name} (${targetRaw.id})`)
+
+            if (feedback) {
+                feedback.style.color = '#10b981'
+                feedback.textContent = `Serveur "${targetRaw.name}" connecté !`
+            }
+
+            // Save to disk and update distro
+            await DistroAPI.writeDistributionToDisk(data)
+            const heliosDistro = await DistroAPI.getDistribution()
+            const serv = heliosDistro.getServerById(targetRaw.id)
+            if (serv) {
+                updateSelectedServer(serv)
+            } else {
+                updateSelectedServer(heliosDistro.getMainServer())
+            }
+
+            setTimeout(() => {
+                toggleOverlay(false)
+            }, 800)
+        } catch (err) {
+            loggerLanding.error('Error synchronizing via panel code', err)
+            if (feedback) {
+                feedback.style.display = 'block'
+                feedback.style.color = '#ef4444'
+                feedback.textContent = err.message || 'Erreur lors de la synchronisation'
+            }
+        }
+    }
+}
