@@ -77,13 +77,29 @@ if (blockmapFile) {
     fs.copyFileSync(path.join(DIST_DIR, blockmapFile), path.join(TARGET_UPDATE_DIR, blockmapFile));
 }
 
-console.log('[4/4] Ajustement des permissions web (www-data)...');
+console.log('[4/4] Ajustement des permissions web locales (www-data)...');
 try {
-    execSync(`chown -R www-data:www-data /var/www/landing/launcher /var/www/landing/*.exe /var/www/landing/*.zip`);
-    execSync(`chmod -R 755 /var/www/landing/launcher`);
-    execSync(`chmod 644 /var/www/landing/*.exe /var/www/landing/*.zip`);
+    execSync(`chown -R www-data:www-data /var/www/landing/launcher /var/www/landing/*.exe /var/www/landing/*.zip 2>/dev/null || true`);
+    execSync(`chmod -R 755 /var/www/landing/launcher 2>/dev/null || true`);
+    execSync(`chmod 644 /var/www/landing/*.exe /var/www/landing/*.zip 2>/dev/null || true`);
 } catch (e) {
-    console.warn('[AVERTISSEMENT] Erreur chown/chmod:', e.message);
+    console.warn('[AVERTISSEMENT] Erreur chown/chmod local:', e.message);
+}
+
+// 5. Sync to Production VPS (rxcorp.me)
+console.log('[5/5] Synchronisation vers le VPS de production rxcorp.me (82.70.251.151)...');
+try {
+    const vpsHost = '82.70.251.151';
+    const vpsUser = 'ubuntu';
+    const vpsPass = 'Cornemer2002*';
+
+    // Sync launcher update folder and landing site
+    execSync(`sshpass -p '${vpsPass}' rsync -avz -e "ssh -o StrictHostKeyChecking=no" /var/www/landing/launcher/ ${vpsUser}@${vpsHost}:/tmp/launcher_sync/`, { stdio: 'inherit' });
+    execSync(`sshpass -p '${vpsPass}' rsync -avz -e "ssh -o StrictHostKeyChecking=no" /var/www/landing/RX*.exe /var/www/landing/RX*.zip ${vpsUser}@${vpsHost}:/tmp/launcher_root/`, { stdio: 'inherit' });
+    execSync(`sshpass -p '${vpsPass}' ssh -o StrictHostKeyChecking=no ${vpsUser}@${vpsHost} "echo '${vpsPass}' | sudo -S cp -r /tmp/launcher_sync/* /var/www/landing/launcher/ && sudo cp /tmp/launcher_root/* /var/www/landing/ && sudo chown -R www-data:www-data /var/www/landing/launcher /var/www/landing/*.exe /var/www/landing/*.zip && sudo chmod -R 755 /var/www/landing/launcher && sudo chmod 644 /var/www/landing/*.exe /var/www/landing/*.zip && rm -rf /tmp/launcher_sync /tmp/launcher_root"`, { stdio: 'inherit' });
+    console.log('   ✅ Synchronisation VPS production terminée !');
+} catch (e) {
+    console.warn('[AVERTISSEMENT] Erreur synchro VPS:', e.message);
 }
 
 console.log('==================================================');
