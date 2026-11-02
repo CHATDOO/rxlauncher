@@ -211,6 +211,9 @@ class ProcessBuilder {
     }
 
     _lteMinorVersion(version) {
+        if(!this.modManifest || !this.modManifest.id || !this.modManifest.id.includes('-')) {
+            return false
+        }
         return Number(this.modManifest.id.split('-')[0].split('.')[1]) <= Number(version)
     }
 
@@ -220,6 +223,9 @@ class ProcessBuilder {
      */
     _requiresAbsolute(){
         try {
+            if(!this.modManifest || !this.modManifest.id || !this.modManifest.id.includes('-')) {
+                return false
+            }
             if(this._lteMinorVersion(9)) {
                 return false
             }
@@ -409,12 +415,12 @@ class ProcessBuilder {
         // Debug securejarhandler
         // args.push('-Dbsl.debug=true')
 
-        if(this.modManifest.arguments.jvm != null) {
+        if(this.modManifest != null && this.modManifest.arguments != null && this.modManifest.arguments.jvm != null) {
             for(const argStr of this.modManifest.arguments.jvm) {
                 args.push(argStr
                     .replaceAll('${library_directory}', this.libPath)
                     .replaceAll('${classpath_separator}', ProcessBuilder.getClasspathSeparator())
-                    .replaceAll('${version_name}', this.modManifest.id)
+                    .replaceAll('${version_name}', this.modManifest.id || this.server.rawServer.minecraftVersion)
                 )
             }
         }
@@ -431,7 +437,8 @@ class ProcessBuilder {
         args = args.concat(ConfigManager.getJVMOptions(this.server.rawServer.id))
 
         // Main Java Class
-        args.push(this.modManifest.mainClass)
+        const targetMainClass = (this.modManifest && this.modManifest.mainClass) ? this.modManifest.mainClass : this.vanillaManifest.mainClass
+        args.push(targetMainClass)
 
         // Vanilla Arguments
         args = args.concat(this.vanillaManifest.arguments.game)
@@ -545,8 +552,10 @@ class ProcessBuilder {
         this._processAutoConnectArg(args)
         
 
-        // Forge Specific Arguments
-        args = args.concat(this.modManifest.arguments.game)
+        // Forge / Loader Specific Arguments
+        if(this.modManifest != null && this.modManifest.arguments != null && Array.isArray(this.modManifest.arguments.game)) {
+            args = args.concat(this.modManifest.arguments.game)
+        }
 
         // Filter null values
         args = args.filter(arg => {
@@ -562,6 +571,9 @@ class ProcessBuilder {
      * @returns {Array.<string>} An array containing the arguments required by forge.
      */
     _resolveForgeArgs(){
+        if(!this.modManifest || !this.modManifest.minecraftArguments) {
+            return []
+        }
         const mcArgs = this.modManifest.minecraftArguments.split(' ')
         const argDiscovery = /\${*(.*)}/
 
