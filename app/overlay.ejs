@@ -6,6 +6,13 @@
                 <!-- Server listings populated here. -->
             </div>
         </div>
+        <div id="serverSelectAddCode">
+            <div id="serverSelectAddCodeInner">
+                <input id="serverSelectCodeInput" type="text" placeholder="AJOUTER VIA CODE (EX: RX-8, RX-24...)" autocomplete="off" spellcheck="false" />
+                <button id="serverSelectCodeSyncBtn">SYNC</button>
+            </div>
+            <span id="serverSelectCodeStatus"></span>
+        </div>
         <div id="serverSelectActions">
             <button id="serverSelectConfirm" class="overlayKeybindEnter" type="submit"><%- lang('overlay.serverSelectConfirm') %></button>
             <div id="serverSelectCancelWrapper">

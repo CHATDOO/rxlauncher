@@ -316,9 +316,91 @@ function populateAccountListings(){
 async function prepareServerSelectionList(){
     await populateServerListings()
     setServerListingHandlers()
+    const codeInput = document.getElementById('serverSelectCodeInput')
+    if (codeInput && typeof ConfigManager !== 'undefined' && ConfigManager.getServerCode) {
+        codeInput.value = ConfigManager.getServerCode() || ''
+    }
 }
 
 function prepareAccountSelectionList(){
     populateAccountListings()
     setAccountListingHandlers()
+}
+
+// Server Select Add Code (Helios UI)
+const serverSelectCodeInput = document.getElementById('serverSelectCodeInput')
+const serverSelectCodeSyncBtn = document.getElementById('serverSelectCodeSyncBtn')
+const serverSelectCodeStatus = document.getElementById('serverSelectCodeStatus')
+
+async function syncServerFromOverlayCode(codeVal) {
+    const code = (codeVal || '').trim()
+    if (!code) return
+
+    if (serverSelectCodeStatus) {
+        serverSelectCodeStatus.style.display = 'block'
+        serverSelectCodeStatus.style.color = 'rgba(255, 255, 255, 0.85)'
+        serverSelectCodeStatus.textContent = 'Connexion au serveur...'
+    }
+
+    try {
+        const response = await fetch(`https://panel.rxcorp.me/api/launcher/distribution/${encodeURIComponent(code)}`)
+        if (!response.ok) throw new Error('Code introuvable')
+        const data = await response.json()
+        if (!data.servers || data.servers.length === 0) throw new Error('Aucun serveur')
+
+        const targetRaw = data.servers[0]
+        const serv = await DistroAPI.addServerInstance(targetRaw, code, data)
+
+        ConfigManager.setServerCode(code)
+        ConfigManager.setSelectedServer(serv.rawServer.id)
+        ConfigManager.save()
+
+        if (serv) {
+            updateSelectedServer(serv)
+            if (typeof refreshServerStatus === 'function') {
+                refreshServerStatus(true)
+            }
+        }
+
+        const navInput = document.getElementById('navServerCodeInput')
+        if (navInput) navInput.value = code
+
+        await populateServerListings()
+        setServerListingHandlers()
+
+        if (serverSelectCodeStatus) {
+            serverSelectCodeStatus.style.display = 'block'
+            serverSelectCodeStatus.style.color = '#10b981'
+            serverSelectCodeStatus.textContent = `✓ ${targetRaw.name} (Instance prête)`
+            setTimeout(() => {
+                if (serverSelectCodeStatus) serverSelectCodeStatus.style.display = 'none'
+            }, 4000)
+        }
+    } catch (err) {
+        if (serverSelectCodeStatus) {
+            serverSelectCodeStatus.style.display = 'block'
+            serverSelectCodeStatus.style.color = '#ef4444'
+            serverSelectCodeStatus.textContent = '✗ Code invalide ou inaccessible'
+            setTimeout(() => {
+                if (serverSelectCodeStatus) serverSelectCodeStatus.style.display = 'none'
+            }, 4000)
+        }
+    }
+}
+
+if (serverSelectCodeInput) {
+    serverSelectCodeInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault()
+            syncServerFromOverlayCode(serverSelectCodeInput.value)
+        }
+    })
+}
+
+if (serverSelectCodeSyncBtn) {
+    serverSelectCodeSyncBtn.onclick = () => {
+        if (serverSelectCodeInput) {
+            syncServerFromOverlayCode(serverSelectCodeInput.value)
+        }
+    }
 }

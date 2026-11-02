@@ -528,7 +528,7 @@ exports.setModConfiguration = function(serverid, configuration){
 // Java Settings
 
 function defaultJavaConfig(effectiveJavaOptions, ram) {
-    if(effectiveJavaOptions.suggestedMajor > 8) {
+    if(effectiveJavaOptions && effectiveJavaOptions.suggestedMajor > 8) {
         return defaultJavaConfig17(ram)
     } else {
         return defaultJavaConfig8(ram)
@@ -569,59 +569,65 @@ function defaultJavaConfig17(ram) {
  * Ensure a java config property is set for the given server.
  * 
  * @param {string} serverid The server id.
- * @param {*} mcVersion The minecraft version of the server.
+ * @param {*} effectiveJavaOptions The java options of the server.
+ * @param {*} ram Optional ram allocation.
  */
 exports.ensureJavaConfig = function(serverid, effectiveJavaOptions, ram) {
-    if(!Object.prototype.hasOwnProperty.call(config.javaConfig, serverid)) {
+    if(!config.javaConfig) {
+        config.javaConfig = {}
+    }
+    if(!Object.prototype.hasOwnProperty.call(config.javaConfig, serverid) || !config.javaConfig[serverid]) {
         config.javaConfig[serverid] = defaultJavaConfig(effectiveJavaOptions, ram)
     }
 }
 
 /**
- * Retrieve the minimum amount of memory for JVM initialization. This value
- * contains the units of memory. For example, '5G' = 5 GigaBytes, '1024M' = 
- * 1024 MegaBytes, etc.
+ * Retrieve the minimum amount of memory for JVM initialization.
  * 
  * @param {string} serverid The server id.
  * @returns {string} The minimum amount of memory for JVM initialization.
  */
 exports.getMinRAM = function(serverid){
-    return config.javaConfig[serverid].minRAM
+    if(!config.javaConfig || !config.javaConfig[serverid]){
+        return '1G'
+    }
+    return config.javaConfig[serverid].minRAM || '1G'
 }
 
 /**
- * Set the minimum amount of memory for JVM initialization. This value should
- * contain the units of memory. For example, '5G' = 5 GigaBytes, '1024M' = 
- * 1024 MegaBytes, etc.
+ * Set the minimum amount of memory for JVM initialization.
  * 
  * @param {string} serverid The server id.
  * @param {string} minRAM The new minimum amount of memory for JVM initialization.
  */
 exports.setMinRAM = function(serverid, minRAM){
+    if(!config.javaConfig) config.javaConfig = {}
+    if(!config.javaConfig[serverid]) config.javaConfig[serverid] = defaultJavaConfig17()
     config.javaConfig[serverid].minRAM = minRAM
 }
 
 /**
- * Retrieve the maximum amount of memory for JVM initialization. This value
- * contains the units of memory. For example, '5G' = 5 GigaBytes, '1024M' = 
- * 1024 MegaBytes, etc.
+ * Retrieve the maximum amount of memory for JVM initialization.
  * 
  * @param {string} serverid The server id.
  * @returns {string} The maximum amount of memory for JVM initialization.
  */
 exports.getMaxRAM = function(serverid){
-    return config.javaConfig[serverid].maxRAM
+    if(!config.javaConfig || !config.javaConfig[serverid]){
+        return '4G'
+    }
+    return config.javaConfig[serverid].maxRAM || '4G'
 }
 
 /**
- * Set the maximum amount of memory for JVM initialization. This value should
- * contain the units of memory. For example, '5G' = 5 GigaBytes, '1024M' = 
- * 1024 MegaBytes, etc.
+ * Set the maximum amount of memory for JVM initialization.
  * 
  * @param {string} serverid The server id.
  * @param {string} maxRAM The new maximum amount of memory for JVM initialization.
  */
 exports.setMaxRAM = function(serverid, maxRAM){
+    if(!config.javaConfig) config.javaConfig = {}
+    if(!config.javaConfig[serverid]) config.javaConfig[serverid] = defaultJavaConfig17()
     config.javaConfig[serverid].maxRAM = maxRAM
 }
 
@@ -634,7 +640,10 @@ exports.setMaxRAM = function(serverid, maxRAM){
  * @returns {string} The path of the Java Executable.
  */
 exports.getJavaExecutable = function(serverid){
-    return config.javaConfig[serverid].executable
+    if(!config.javaConfig || !config.javaConfig[serverid]){
+        return null
+    }
+    return config.javaConfig[serverid].executable || null
 }
 
 /**
@@ -644,31 +653,34 @@ exports.getJavaExecutable = function(serverid){
  * @param {string} executable The new path of the Java Executable.
  */
 exports.setJavaExecutable = function(serverid, executable){
+    if(!config.javaConfig) config.javaConfig = {}
+    if(!config.javaConfig[serverid]) config.javaConfig[serverid] = defaultJavaConfig17()
     config.javaConfig[serverid].executable = executable
 }
 
 /**
- * Retrieve the additional arguments for JVM initialization. Required arguments,
- * such as memory allocation, will be dynamically resolved and will not be included
- * in this value.
+ * Retrieve the additional arguments for JVM initialization.
  * 
  * @param {string} serverid The server id.
  * @returns {Array.<string>} An array of the additional arguments for JVM initialization.
  */
 exports.getJVMOptions = function(serverid){
-    return config.javaConfig[serverid].jvmOptions
+    if(!config.javaConfig || !config.javaConfig[serverid]){
+        return []
+    }
+    return config.javaConfig[serverid].jvmOptions || []
 }
 
 /**
- * Set the additional arguments for JVM initialization. Required arguments,
- * such as memory allocation, will be dynamically resolved and should not be
- * included in this value.
+ * Set the additional arguments for JVM initialization.
  * 
  * @param {string} serverid The server id.
  * @param {Array.<string>} jvmOptions An array of the new additional arguments for JVM 
  * initialization.
  */
 exports.setJVMOptions = function(serverid, jvmOptions){
+    if(!config.javaConfig) config.javaConfig = {}
+    if(!config.javaConfig[serverid]) config.javaConfig[serverid] = defaultJavaConfig17()
     config.javaConfig[serverid].jvmOptions = jvmOptions
 }
 

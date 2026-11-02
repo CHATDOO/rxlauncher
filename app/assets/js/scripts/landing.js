@@ -102,8 +102,13 @@ function setLaunchEnabled(val){
 document.getElementById('launch_button').addEventListener('click', async e => {
     loggerLanding.info('Launching game..')
     try {
-        const server = (await DistroAPI.getDistribution()).getServerById(ConfigManager.getSelectedServer())
-        const jExe = ConfigManager.getJavaExecutable(ConfigManager.getSelectedServer())
+        const servId = ConfigManager.getSelectedServer()
+        const distro = await DistroAPI.getDistribution()
+        const server = distro.getServerById(servId) || distro.getMainServer()
+        if (server) {
+            ConfigManager.ensureJavaConfig(servId, server.effectiveJavaOptions)
+        }
+        const jExe = ConfigManager.getJavaExecutable(servId)
         if(jExe == null){
             await asyncSystemScan(server.effectiveJavaOptions)
         } else {
@@ -442,8 +447,8 @@ let hasRPC = false
 // Joined server regex
 // Change this if your server uses something different.
 const GAME_JOINED_REGEX = /\[.+\]: Sound engine started/
-const GAME_LAUNCH_REGEX = /^\[.+\]: (?:MinecraftForge .+ Initialized|ModLauncher .+ starting: .+|Loading Minecraft .+ with Fabric Loader .+)$/
-const MIN_LINGER = 5000
+const GAME_LAUNCH_REGEX = /(?:MinecraftForge .+ Initialized|ModLauncher .+ starting|Loading Minecraft .+ with Fabric Loader|Backend library: LWJGL|Setting user: |OpenAL initialized|Sound engine started|Environment: Environment\[|Loaded \d+ mods|LWJGL Version:)/i
+const MIN_LINGER = 4000
 
 async function dlAsync(login = true) {
 
@@ -557,17 +562,29 @@ async function dlAsync(login = true) {
         let pb = new ProcessBuilder(serv, versionData, modLoaderData, authUser, remote.app.getVersion())
         setLaunchDetails(Lang.queryJS('landing.dlAsync.launchingGame'))
 
-        // const SERVER_JOINED_REGEX = /\[.+\]: \[CHAT\] [a-zA-Z0-9_]{1,16} joined the game/
         const SERVER_JOINED_REGEX = new RegExp(`\\[.+\\]: \\[CHAT\\] ${authUser.displayName} joined the game`)
 
+        let launchFinished = false
+        let launchSafetyTimeout = null
+
         const onLoadComplete = () => {
+            if(launchFinished) return
+            launchFinished = true
+            if(launchSafetyTimeout){
+                clearTimeout(launchSafetyTimeout)
+                launchSafetyTimeout = null
+            }
             toggleLaunchArea(false)
-            if(hasRPC){
+            if(hasRPC && proc && proc.stdout){
                 DiscordWrapper.updateDetails(Lang.queryJS('landing.discord.loading'))
                 proc.stdout.on('data', gameStateChange)
             }
-            proc.stdout.removeListener('data', tempListener)
-            proc.stderr.removeListener('data', gameErrorListener)
+            if(proc && proc.stdout){
+                proc.stdout.removeListener('data', tempListener)
+            }
+            if(proc && proc.stderr){
+                proc.stderr.removeListener('data', gameErrorListener)
+            }
         }
         const start = Date.now()
 
@@ -576,29 +593,37 @@ async function dlAsync(login = true) {
         // the client application has started, and we can hide
         // the progress bar stuff.
         const tempListener = function(data){
-            if(GAME_LAUNCH_REGEX.test(data.trim())){
-                const diff = Date.now()-start
-                if(diff < MIN_LINGER) {
-                    setTimeout(onLoadComplete, MIN_LINGER-diff)
-                } else {
-                    onLoadComplete()
+            const str = data ? data.toString() : ''
+            const lines = str.trim().split(/\r?\n/)
+            for(const line of lines){
+                if(GAME_LAUNCH_REGEX.test(line)){
+                    const diff = Date.now()-start
+                    if(diff < MIN_LINGER) {
+                        setTimeout(onLoadComplete, MIN_LINGER-diff)
+                    } else {
+                        onLoadComplete()
+                    }
+                    return
                 }
             }
         }
 
         // Listener for Discord RPC.
         const gameStateChange = function(data){
-            data = data.trim()
-            if(SERVER_JOINED_REGEX.test(data)){
-                DiscordWrapper.updateDetails(Lang.queryJS('landing.discord.joined'))
-            } else if(GAME_JOINED_REGEX.test(data)){
-                DiscordWrapper.updateDetails(Lang.queryJS('landing.discord.joining'))
+            const str = data ? data.toString() : ''
+            const lines = str.trim().split(/\r?\n/)
+            for(const line of lines){
+                if(SERVER_JOINED_REGEX.test(line)){
+                    DiscordWrapper.updateDetails(Lang.queryJS('landing.discord.joined'))
+                } else if(GAME_JOINED_REGEX.test(line)){
+                    DiscordWrapper.updateDetails(Lang.queryJS('landing.discord.joining'))
+                }
             }
         }
 
         const gameErrorListener = function(data){
-            data = data.trim()
-            if(data.indexOf('Could not find or load main class net.minecraft.launchwrapper.Launch') > -1){
+            const str = data ? data.toString() : ''
+            if(str.indexOf('Could not find or load main class net.minecraft.launchwrapper.Launch') > -1){
                 loggerLaunchSuite.error('Game launch failed, LaunchWrapper was not downloaded properly.')
                 showLaunchFailure(Lang.queryJS('landing.dlAsync.errorDuringLaunchTitle'), Lang.queryJS('landing.dlAsync.launchWrapperNotDownloaded'))
             }
@@ -608,9 +633,33 @@ async function dlAsync(login = true) {
             // Build Minecraft process.
             proc = pb.build()
 
+            // Safety timeout: restore Play button after 8 seconds if game launch pattern wasn't captured in stdout
+            launchSafetyTimeout = setTimeout(() => {
+                loggerLaunchSuite.info('Launch complete safety timeout reached, restoring launch button.')
+                onLoadComplete()
+            }, 8000)
+
             // Bind listeners to stdout.
             proc.stdout.on('data', tempListener)
             proc.stderr.on('data', gameErrorListener)
+
+            // ALWAYS listen for process close and exit to restore the Play button
+            const onProcessExit = (code, signal) => {
+                loggerLaunchSuite.info(`Game process terminated (code: ${code}, signal: ${signal}).`)
+                if(!launchFinished){
+                    onLoadComplete()
+                }
+                toggleLaunchArea(false)
+                setLaunchDetails('')
+                if(hasRPC){
+                    loggerLaunchSuite.info('Shutting down Discord Rich Presence..')
+                    DiscordWrapper.shutdownRPC()
+                    hasRPC = false
+                }
+                proc = null
+            }
+            proc.on('close', onProcessExit)
+            proc.on('exit', onProcessExit)
 
             setLaunchDetails(Lang.queryJS('landing.dlAsync.doneEnjoyServer'))
 
@@ -618,19 +667,13 @@ async function dlAsync(login = true) {
             if(distro.rawDistribution.discord != null && serv.rawServer.discord != null){
                 DiscordWrapper.initRPC(distro.rawDistribution.discord, serv.rawServer.discord)
                 hasRPC = true
-                proc.on('close', (code, signal) => {
-                    loggerLaunchSuite.info('Shutting down Discord Rich Presence..')
-                    DiscordWrapper.shutdownRPC()
-                    hasRPC = false
-                    proc = null
-                })
             }
 
         } catch(err) {
-
+            if(launchSafetyTimeout) clearTimeout(launchSafetyTimeout)
+            toggleLaunchArea(false)
             loggerLaunchSuite.error('Error during launch', err)
             showLaunchFailure(Lang.queryJS('landing.dlAsync.errorDuringLaunchTitle'), Lang.queryJS('landing.dlAsync.checkConsoleForDetails'))
-
         }
     }
 
@@ -1039,7 +1082,7 @@ async function syncServerFromNavbarCode(codeVal) {
 
     if (navServerCodeStatus) {
         navServerCodeStatus.style.display = 'inline'
-        navServerCodeStatus.style.color = '#38bdf8'
+        navServerCodeStatus.style.color = 'rgba(255, 255, 255, 0.85)'
         navServerCodeStatus.textContent = 'Connexion...'
     }
 
@@ -1052,17 +1095,27 @@ async function syncServerFromNavbarCode(codeVal) {
         const targetRaw = data.servers[0]
         loggerLanding.info(`Server resolved via navbar code: ${targetRaw.name} (${targetRaw.id})`)
 
-        // Persist code in ConfigManager
+        // Create or merge server instance into distribution & disk
+        const serv = await DistroAPI.addServerInstance(targetRaw, code, data)
+
+        // Persist code and selection in ConfigManager
         ConfigManager.setServerCode(code)
-        ConfigManager.setSelectedServer(targetRaw.id)
+        ConfigManager.setSelectedServer(serv.rawServer.id)
         ConfigManager.save()
 
-        // Update local distribution cache
-        await DistroAPI.writeDistributionToDisk(data)
-        const heliosDistro = await DistroAPI.getDistribution()
-        const serv = heliosDistro.getServerById(targetRaw.id) || heliosDistro.getMainServer()
         if (serv) {
             updateSelectedServer(serv)
+            if (typeof refreshServerStatus === 'function') {
+                refreshServerStatus(true)
+            }
+        }
+
+        const overlayInput = document.getElementById('serverSelectCodeInput')
+        if (overlayInput) overlayInput.value = code
+        if (typeof populateServerListings === 'function') {
+            populateServerListings().then(() => {
+                if (typeof setServerListingHandlers === 'function') setServerListingHandlers()
+            }).catch(() => {})
         }
 
         if (navServerCodeStatus) {

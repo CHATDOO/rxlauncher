@@ -41,11 +41,52 @@ class ProcessBuilder {
         this.llPath = null
     }
     
+    ensureServersDat(){
+        try {
+            const address = this.server.rawServer.address || `${this.server.hostname}:${this.server.port}`
+            if(!address || address === 'null' || address === 'undefined') return
+
+            const serversDatPath = path.join(this.gameDir, 'servers.dat')
+            const name = this.server.rawServer.name || 'Serveur RXCORP'
+            const zlib = require('zlib')
+            
+            function writeString(buf, str) {
+                const strBuf = Buffer.from(str, 'utf8')
+                const lenBuf = Buffer.alloc(2)
+                lenBuf.writeUInt16BE(strBuf.length, 0)
+                return Buffer.concat([buf, lenBuf, strBuf])
+            }
+
+            let b = Buffer.from([0x0A, 0x00, 0x00]) // Compound root
+            b = Buffer.concat([b, Buffer.from([0x09])]) // List tag
+            b = writeString(b, 'servers')
+            const listHeader = Buffer.alloc(5)
+            listHeader.writeUInt8(0x0A, 0) // element type compound
+            listHeader.writeInt32BE(1, 1)  // 1 server
+            b = Buffer.concat([b, listHeader])
+
+            b = Buffer.concat([b, Buffer.from([0x08])]) // String name
+            b = writeString(b, 'name')
+            b = writeString(b, name)
+
+            b = Buffer.concat([b, Buffer.from([0x08])]) // String ip
+            b = writeString(b, 'ip')
+            b = writeString(b, address)
+
+            b = Buffer.concat([b, Buffer.from([0x00, 0x00])]) // End of compound, end of root
+            fs.writeFileSync(serversDatPath, zlib.gzipSync(b))
+            logger.info(`Initialized servers.dat for ${name} (${address})`)
+        } catch(e) {
+            logger.warn('Unable to write servers.dat:', e.message)
+        }
+    }
+
     /**
      * Convienence method to run the functions typically used to build a process.
      */
     build(){
         fs.ensureDirSync(this.gameDir)
+        this.ensureServersDat()
         const tempNativePath = path.join(os.tmpdir(), ConfigManager.getTempNativeFolder(), crypto.pseudoRandomBytes(16).toString('hex'))
         process.throwDeprecation = true
         this.setupLiteLoader()
@@ -332,15 +373,20 @@ class ProcessBuilder {
     }
 
     _processAutoConnectArg(args){
-        if(ConfigManager.getAutoConnect() && this.server.rawServer.autoconnect){
-            if(mcVersionAtLeast('1.20', this.server.rawServer.minecraftVersion)){
-                args.push('--quickPlayMultiplayer')
-                args.push(`${this.server.hostname}:${this.server.port}`)
-            } else {
-                args.push('--server')
-                args.push(this.server.hostname)
-                args.push('--port')
-                args.push(this.server.port)
+        if(ConfigManager.getAutoConnect() && (this.server.rawServer.autoconnect !== false)){
+            const address = this.server.rawServer.address || `${this.server.hostname}:${this.server.port}`
+            if(address && address !== 'null' && address !== 'undefined'){
+                if(mcVersionAtLeast('1.20', this.server.rawServer.minecraftVersion)){
+                    args.push('--quickPlayMultiplayer')
+                    args.push(address)
+                } else {
+                    const host = this.server.hostname || address.split(':')[0]
+                    const port = this.server.port || address.split(':')[1] || '25565'
+                    args.push('--server')
+                    args.push(host)
+                    args.push('--port')
+                    args.push(String(port))
+                }
             }
         }
     }
@@ -417,15 +463,23 @@ class ProcessBuilder {
 
         if(this.modManifest != null && this.modManifest.arguments != null && this.modManifest.arguments.jvm != null) {
             for(const argStr of this.modManifest.arguments.jvm) {
-                args.push(argStr
+                let resolved = argStr
                     .replaceAll('${library_directory}', this.libPath)
                     .replaceAll('${classpath_separator}', ProcessBuilder.getClasspathSeparator())
                     .replaceAll('${version_name}', this.modManifest.id || this.server.rawServer.minecraftVersion)
-                )
+                if (resolved.startsWith('-Dforgewrapper.installer=')) {
+                    const rawVal = resolved.substring('-Dforgewrapper.installer='.length)
+                    resolved = '-Dforgewrapper.installer=' + path.normalize(rawVal)
+                } else if (resolved.startsWith('-Dforgewrapper.minecraft=')) {
+                    const rawVal = resolved.substring('-Dforgewrapper.minecraft='.length)
+                    resolved = '-Dforgewrapper.minecraft=' + path.normalize(rawVal)
+                } else if (resolved.startsWith('-Dforgewrapper.librariesDir=')) {
+                    const rawVal = resolved.substring('-Dforgewrapper.librariesDir='.length)
+                    resolved = '-Dforgewrapper.librariesDir=' + path.normalize(rawVal)
+                }
+                args.push(resolved)
             }
         }
-
-        //args.push('-Dlog4j.configurationFile=D:\\WesterosCraft\\game\\common\\assets\\log_configs\\client-1.12.xml')
 
         // Java Arguments
         if(process.platform === 'darwin'){
@@ -438,6 +492,20 @@ class ProcessBuilder {
 
         // Main Java Class
         const targetMainClass = (this.modManifest && this.modManifest.mainClass) ? this.modManifest.mainClass : this.vanillaManifest.mainClass
+
+        // Ensure ForgeWrapper properties if using ForgeWrapper
+        if (targetMainClass === 'io.github.zekerzhayard.forgewrapper.installer.Main') {
+            const hasLibDir = args.some(a => typeof a === 'string' && a.startsWith('-Dforgewrapper.librariesDir='))
+            if (!hasLibDir) {
+                args.push(`-Dforgewrapper.librariesDir=${this.libPath}`)
+            }
+            const hasMc = args.some(a => typeof a === 'string' && a.startsWith('-Dforgewrapper.minecraft='))
+            if (!hasMc) {
+                const mcJar = path.join(this.commonDir, 'versions', this.server.rawServer.minecraftVersion, `${this.server.rawServer.minecraftVersion}.jar`)
+                args.push(`-Dforgewrapper.minecraft=${mcJar}`)
+            }
+        }
+
         args.push(targetMainClass)
 
         // Vanilla Arguments
@@ -687,10 +755,11 @@ class ProcessBuilder {
     classpathArg(mods, tempNativePath){
         let cpArgs = []
 
-        if(!mcVersionAtLeast('1.17', this.server.rawServer.minecraftVersion) || this.usingFabricLoader) {
+        const isUsingForgeBootstrap = (this.modManifest != null && this.modManifest.mainClass && this.modManifest.mainClass !== 'net.minecraft.client.main.Main')
+        if(!isUsingForgeBootstrap || !mcVersionAtLeast('1.17', this.server.rawServer.minecraftVersion) || this.usingFabricLoader) {
             // Add the version.jar to the classpath.
-            // Must not be added to the classpath for Forge 1.17+.
-            const version = this.vanillaManifest.id
+            // Must not be added to the classpath for Forge 1.17+ when using ForgeBootstrap.
+            const version = (this.vanillaManifest && this.vanillaManifest.id) ? this.vanillaManifest.id : this.server.rawServer.minecraftVersion
             cpArgs.push(path.join(this.commonDir, 'versions', version, version + '.jar'))
         }
         
@@ -709,6 +778,17 @@ class ProcessBuilder {
         // maven identifier will override the mojang ones.
         // Ex. 1.7.10 forge overrides mojang's guava with newer version.
         const finalLibs = {...mojangLibs, ...servLibs}
+
+        // If launching modern Forge / NeoForge, remove redundant jopt-simple from Mojang
+        // to prevent Java JPMS split-package ResolutionException (Modules forge and jopt.simple export package)
+        if (isUsingForgeBootstrap) {
+            for (const key of Object.keys(finalLibs)) {
+                if (key.includes('jopt-simple') || key.includes('joptsimple')) {
+                    delete finalLibs[key]
+                }
+            }
+        }
+
         cpArgs = cpArgs.concat(Object.values(finalLibs))
 
         this._processClassPathList(cpArgs)
