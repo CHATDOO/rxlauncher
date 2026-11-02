@@ -37,15 +37,15 @@ function createTray(getMainWindow) {
             }
         },
         {
-            label: 'Site Officiel (rxcorp.fr)',
+            label: 'Site Officiel (rxcorp.me)',
             click: () => {
-                shell.openExternal('https://rxcorp.fr');
+                shell.openExternal('https://rxcorp.me');
             }
         },
         {
-            label: 'Panel Cloud (panel.rxcorp.fr)',
+            label: 'Panel Cloud (panel.rxcorp.me)',
             click: () => {
-                shell.openExternal('https://panel.rxcorp.fr');
+                shell.openExternal('https://panel.rxcorp.me');
             }
         },
         { type: 'separator' },

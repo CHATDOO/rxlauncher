@@ -13,7 +13,7 @@ class ModrinthService {
 
     _getHeaders() {
         return {
-            'User-Agent': 'RXCORP-Launcher/2.0 (contact@rxcorp.fr)',
+            'User-Agent': 'RXCORP-Launcher/2.0 (contact@rxcorp.me)',
             'Accept': 'application/json'
         };
     }

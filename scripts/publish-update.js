@@ -1,6 +1,6 @@
 /**
  * RXCORP Launcher - Update Publisher
- * Deploys built artifacts to the live update server on https://rxcorp.fr/launcher/update/
+ * Deploys built artifacts to the live update server on https://rxcorp.me/launcher/update/
  */
 
 const fs = require('fs');
@@ -88,6 +88,6 @@ try {
 
 console.log('==================================================');
 console.log('   ✅ MISE À JOUR DÉPLOYÉE AVEC SUCCÈS SUR LE CLOUD !');
-console.log('   Flux de MAJ : https://rxcorp.fr/launcher/update/latest.yml');
-console.log('   Téléchargement : https://rxcorp.fr/RXCORP-Launcher.exe');
+console.log('   Flux de MAJ : https://rxcorp.me/launcher/update/latest.yml');
+console.log('   Téléchargement : https://rxcorp.me/RXCORP-Launcher.exe');
 console.log('==================================================');

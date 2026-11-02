@@ -1,6 +1,6 @@
 /**
  * RXCORP Launcher - Pelican Cloud API Service
- * Handles communication with Pelican Panel (panel.rxcorp.fr)
+ * Handles communication with Pelican Panel (panel.rxcorp.me)
  */
 
 const fs = require('fs');
@@ -12,7 +12,7 @@ const modPoolService = require('./modPoolService');
 
 class PelicanService {
     constructor() {
-        this.defaultPanelUrl = 'https://panel.rxcorp.fr';
+        this.defaultPanelUrl = 'https://panel.rxcorp.me';
     }
 
     /**
@@ -101,7 +101,7 @@ class PelicanService {
                 const allocations = attr.relationships?.allocations?.data || [];
                 const defaultAlloc = allocations.find(a => a.attributes?.is_default) || allocations[0];
 
-                let ip = 'node.rxcorp.fr';
+                let ip = 'node.rxcorp.me';
                 let port = 25565;
 
                 if (defaultAlloc && defaultAlloc.attributes) {
@@ -109,7 +109,7 @@ class PelicanService {
                     if (allocIp && allocIp !== '0.0.0.0' && allocIp !== '127.0.0.1') {
                         ip = allocIp;
                     } else {
-                        ip = 'node.rxcorp.fr';
+                        ip = 'node.rxcorp.me';
                     }
                     port = defaultAlloc.attributes.port || port;
                 }

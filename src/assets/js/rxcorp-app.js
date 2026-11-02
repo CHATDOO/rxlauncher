@@ -35,7 +35,7 @@ const i18n = require(path.join(utilsDir, 'i18n.js'));
 // Local storage
 const store = new Store({
     defaults: {
-        panelUrl: 'https://panel.rxcorp.fr',
+        panelUrl: 'https://panel.rxcorp.me',
         apiKey: '',
         curseforgeApiKey: '',
         activeInstanceId: null,
@@ -171,6 +171,10 @@ class RxcorpApp {
 
         // Load cloud servers
         await this.loadCloudServers();
+
+        // Initial telemetry and public servers status
+        this.updatePublicServersStatus();
+        this.updateTelemetryConsole();
 
         // Initial Discord RPC state
         ipcRenderer.send('discord-rpc-idle');
@@ -651,7 +655,7 @@ class RxcorpApp {
 
         document.getElementById('link-create-key')?.addEventListener('click', (e) => {
             e.preventDefault();
-            shell.openExternal('https://panel.rxcorp.fr/account/api');
+            shell.openExternal('https://panel.rxcorp.me/account/api');
         });
     }
 
@@ -874,6 +878,8 @@ class RxcorpApp {
             btnRefresh.disabled = true;
             const origHtml = btnRefresh.innerHTML;
             btnRefresh.innerHTML = '<span>Actualisation...</span>';
+            this.updatePublicServersStatus();
+            this.updateTelemetryConsole();
             await this.loadCloudServers();
             setTimeout(() => {
                 btnRefresh.disabled = false;
@@ -884,6 +890,8 @@ class RxcorpApp {
         // Periodic auto-refresh of server status every 15 seconds
         if (!this.serverStatusInterval) {
             this.serverStatusInterval = setInterval(() => {
+                this.updatePublicServersStatus();
+                this.updateTelemetryConsole();
                 if (this.cloudServers && this.cloudServers.length > 0) {
                     for (const srv of this.cloudServers) {
                         const card = document.getElementById(`server-card-${srv.id}`);
@@ -899,7 +907,7 @@ class RxcorpApp {
 
     async loadCloudServers() {
         const apiKey = store.get('apiKey');
-        const panelUrl = store.get('panelUrl') || 'https://panel.rxcorp.fr';
+        const panelUrl = store.get('panelUrl') || 'https://panel.rxcorp.me';
         let pelicanUser = store.get('pelicanUser');
 
         const authCard = document.getElementById('cloud-auth-card');
@@ -1036,7 +1044,7 @@ class RxcorpApp {
                         <button class="rx-btn rx-btn-secondary" id="btn-empty-open-settings" style="font-size: 12px;">
                             Configurer l'accès Pelican
                         </button>
-                        <button class="rx-btn rx-btn-primary" onclick="require('electron').shell.openExternal('https://rxcorp.fr')">
+                        <button class="rx-btn rx-btn-primary" onclick="require('electron').shell.openExternal('https://rxcorp.me')">
                             Déployer un serveur
                         </button>
                     </div>
@@ -1076,7 +1084,8 @@ class RxcorpApp {
                     </div>
                 </div>
                 <div class="server-badge online" id="badge-${server.id}">
-                    <span class="badge-text">● En Ligne</span>
+                    <span class="rx-signal-dot"></span>
+                    <span class="badge-text">Sonde active...</span>
                 </div>
             </div>
 
@@ -1136,7 +1145,7 @@ class RxcorpApp {
         });
 
         card.querySelector('.btn-open-panel')?.addEventListener('click', () => {
-            const panelUrl = store.get('panelUrl') || 'https://panel.rxcorp.fr';
+            const panelUrl = store.get('panelUrl') || 'https://panel.rxcorp.me';
             const serverId = server.identifier || server.id;
             shell.openExternal(`${panelUrl}/server/${serverId}`);
         });
@@ -1153,9 +1162,10 @@ class RxcorpApp {
         const joinBtn = card.querySelector('.btn-join-server');
 
         try {
+            const srvId = server.identifier || server.id;
             // Dual-detection: Query Pelican API and Direct Minecraft TCP/SLP Ping in parallel
             const [pelicanRes, pingRes] = await Promise.all([
-                pelicanService.getServerResources(server.id, apiKey, panelUrl).catch(() => ({ success: false, state: 'offline' })),
+                pelicanService.getServerResources(srvId, apiKey, panelUrl).catch(() => ({ success: false, state: 'offline' })),
                 pelicanService.pingMinecraftServer(server.ip, server.port, 2800).catch(() => ({ online: false, latency: 0 }))
             ]);
 
@@ -1176,11 +1186,11 @@ class RxcorpApp {
                 badge.className = 'server-badge online';
                 let extraText = '';
                 if (pingRes && pingRes.playersOnline !== null && pingRes.playersOnline !== undefined) {
-                    extraText = ` • ${pingRes.playersOnline}/${pingRes.playersMax || 20}`;
+                    extraText = ` (${pingRes.playersOnline}/${pingRes.playersMax || 20})`;
                 } else if (pingRes && pingRes.latency) {
-                    extraText = ` • ${pingRes.latency}ms`;
+                    extraText = ` (${pingRes.latency}ms)`;
                 }
-                badge.innerHTML = `<span class="badge-text">● En Ligne${extraText}</span>`;
+                badge.innerHTML = `<span class="rx-signal-dot"></span><span class="badge-text">En Ligne${extraText}</span>`;
 
                 if (joinBtn) {
                     joinBtn.disabled = false;
@@ -1194,7 +1204,7 @@ class RxcorpApp {
                 }
             } else if (isStarting) {
                 badge.className = 'server-badge starting';
-                badge.innerHTML = '<span class="badge-text">● Démarrage...</span>';
+                badge.innerHTML = '<span class="rx-signal-dot"></span><span class="badge-text">Démarrage...</span>';
                 if (joinBtn) {
                     joinBtn.disabled = true;
                     joinBtn.classList.add('disabled', 'rx-btn-disabled', 'rx-btn-secondary');
@@ -1204,7 +1214,7 @@ class RxcorpApp {
                 }
             } else {
                 badge.className = 'server-badge offline';
-                badge.innerHTML = '<span class="badge-text">● Hors-Ligne</span>';
+                badge.innerHTML = '<span class="rx-signal-dot"></span><span class="badge-text">Hors-Ligne</span>';
                 if (joinBtn) {
                     joinBtn.disabled = true;
                     joinBtn.classList.add('disabled', 'rx-btn-disabled', 'rx-btn-secondary');
@@ -1232,7 +1242,7 @@ class RxcorpApp {
             console.warn(`[LiveStatus] Erreur pour ${server.name}:`, err);
             if (badge) {
                 badge.className = 'server-badge offline';
-                badge.innerHTML = '<span class="badge-text">● Hors-Ligne</span>';
+                badge.innerHTML = '<span class="rx-signal-dot"></span><span class="badge-text">Hors-Ligne</span>';
             }
             if (joinBtn) {
                 joinBtn.disabled = true;
@@ -1250,7 +1260,8 @@ class RxcorpApp {
         // Live mods detection only for Minecraft servers
         if (server.isMinecraft) {
             try {
-                const modsRes = await pelicanService.listServerMods(server.id, apiKey, panelUrl);
+                const srvId = server.identifier || server.id;
+                const modsRes = await pelicanService.listServerMods(srvId, apiKey, panelUrl);
                 const modsSummary = card.querySelector(`#mods-summary-${server.id}`);
                 const modsCount = card.querySelector(`#mods-count-${server.id}`);
                 if (modsSummary && modsCount) {
@@ -1348,7 +1359,7 @@ class RxcorpApp {
         this.isSyncing = true;
 
         const apiKey = store.get('apiKey');
-        const panelUrl = store.get('panelUrl') || 'https://panel.rxcorp.fr';
+        const panelUrl = store.get('panelUrl') || 'https://panel.rxcorp.me';
         const instance = instanceService.getOrCreateServerInstance(server);
         const modsPath = instance.modsPath || (instance.path ? path.join(instance.path, 'mods') : path.join(instanceService.getBaseDir(), instance.id, 'mods'));
 
@@ -1481,12 +1492,12 @@ class RxcorpApp {
     async handleJoinServer(server) {
         const account = this.getActiveAccount();
         const apiKey = store.get('apiKey');
-        const panelUrl = store.get('panelUrl') || 'https://panel.rxcorp.fr';
+        const panelUrl = store.get('panelUrl') || 'https://panel.rxcorp.me';
 
         // Auto-sync player to server whitelist before joining if credentials available
         if (account && apiKey) {
             try {
-                await pelicanService.syncPlayerToServer(server.id, account, apiKey, panelUrl);
+                await pelicanService.syncPlayerToServer(server.identifier || server.id, account, apiKey, panelUrl);
             } catch (_) {}
         }
 
@@ -1525,7 +1536,7 @@ class RxcorpApp {
         }
 
         const apiKey = store.get('apiKey');
-        const panelUrl = store.get('panelUrl') || 'https://panel.rxcorp.fr';
+        const panelUrl = store.get('panelUrl') || 'https://panel.rxcorp.me';
 
         if (!apiKey) {
             if (!silent) {
@@ -1923,29 +1934,52 @@ class RxcorpApp {
 
         // 2. Pelican Server Status & Ping
         const firstServer = this.cloudServers && this.cloudServers[0];
-        if (firstServer) {
+        const targetIp = firstServer?.ip || 'node.rxcorp.me';
+        const targetPort = firstServer?.port || 25566;
+
+        if (firstServer && firstServer.isOnline !== undefined) {
             const isOnline = firstServer.isOnline || firstServer.status === 'running';
             if (infraStatus) {
                 infraStatus.innerHTML = isOnline 
-                    ? `<span style="color: var(--rx-signal-live);">En Ligne (${firstServer.playersOnline !== undefined ? firstServer.playersOnline : '0'}/${firstServer.playersMax || 20})</span>`
+                    ? `<span style="color: var(--rx-signal-live);">En Ligne (${firstServer.playersOnline !== undefined && firstServer.playersOnline !== null ? firstServer.playersOnline : '0'}/${firstServer.playersMax || 20})</span>`
                     : `<span style="color: var(--rx-signal-danger);">Hors-Ligne</span>`;
             }
             if (infraDot) {
                 infraDot.style.backgroundColor = isOnline ? 'var(--rx-signal-live)' : 'var(--rx-signal-danger)';
             }
             if (infraSub) {
-                infraSub.innerText = `${firstServer.ip || 'node.rxcorp.fr'}:${firstServer.port || 25566}`;
+                infraSub.innerText = `${targetIp}:${targetPort}`;
             }
 
-            const latency = firstServer.ping || 17;
+            const latency = firstServer.ping || 9;
             if (pingVal) pingVal.innerHTML = `<span>${latency} ms</span>`;
             if (heroPing) heroPing.innerText = `${latency} ms`;
             if (pingSub) pingSub.innerText = latency < 50 ? 'Excellente connexion' : 'Connexion stable';
         } else {
-            if (infraStatus) infraStatus.innerHTML = `<span>Prêt (Sonde active)</span>`;
-            if (infraSub) infraSub.innerText = `node.rxcorp.fr:25566`;
-            if (pingVal) pingVal.innerHTML = `<span>17 ms</span>`;
-            if (pingSub) pingSub.innerText = `Sonde SLP active`;
+            // Actively ping primary node directly
+            pelicanService.pingMinecraftServer(targetIp, targetPort, 2500).then(res => {
+                const isOnline = !!res?.online;
+                if (infraStatus) {
+                    infraStatus.innerHTML = isOnline 
+                        ? `<span style="color: var(--rx-signal-live);">En Ligne (${res.playersOnline !== null && res.playersOnline !== undefined ? res.playersOnline : '0'}/${res.playersMax || 20})</span>`
+                        : `<span style="color: var(--rx-signal-danger);">Hors-Ligne</span>`;
+                }
+                if (infraDot) {
+                    infraDot.style.backgroundColor = isOnline ? 'var(--rx-signal-live)' : 'var(--rx-signal-danger)';
+                }
+                if (infraSub) {
+                    infraSub.innerText = `${targetIp}:${targetPort}`;
+                }
+                const latency = (res && res.latency) ? res.latency : 9;
+                if (pingVal) pingVal.innerHTML = `<span>${latency} ms</span>`;
+                if (heroPing) heroPing.innerText = `${latency} ms`;
+                if (pingSub) pingSub.innerText = latency < 50 ? 'Excellente connexion' : 'Connexion stable';
+            }).catch(() => {
+                if (infraStatus) infraStatus.innerHTML = `<span>Sonde active</span>`;
+                if (infraSub) infraSub.innerText = `${targetIp}:${targetPort}`;
+                if (pingVal) pingVal.innerHTML = `<span>9 ms</span>`;
+                if (pingSub) pingSub.innerText = `Sonde SLP active`;
+            });
         }
 
         // 3. Whitelist & Security
@@ -1963,6 +1997,36 @@ class RxcorpApp {
                 if (whitelistSub) whitelistSub.innerText = `Aucun joueur lié`;
             }
         }
+    }
+
+    updatePublicServersStatus() {
+        // Ping play.rxcorp.me:25565 (Survie)
+        pelicanService.pingMinecraftServer('play.rxcorp.me', 25565, 3000).then(res => {
+            const badge = document.getElementById('badge-public-survie');
+            if (!badge) return;
+            if (res && res.online) {
+                badge.className = 'server-badge online';
+                const players = (res.playersOnline !== null && res.playersOnline !== undefined) ? ` (${res.playersOnline}/${res.playersMax || 20})` : '';
+                badge.innerHTML = `<span class="rx-signal-dot"></span><span class="badge-text">En Ligne${players}</span>`;
+            } else {
+                badge.className = 'server-badge offline';
+                badge.innerHTML = `<span class="rx-signal-dot"></span><span class="badge-text">Hors-Ligne</span>`;
+            }
+        }).catch(() => {});
+
+        // Ping node.rxcorp.me:25566 (Modded)
+        pelicanService.pingMinecraftServer('node.rxcorp.me', 25566, 3000).then(res => {
+            const badge = document.getElementById('badge-public-modded');
+            if (!badge) return;
+            if (res && res.online) {
+                badge.className = 'server-badge online';
+                const players = (res.playersOnline !== null && res.playersOnline !== undefined) ? ` (${res.playersOnline}/${res.playersMax || 20})` : '';
+                badge.innerHTML = `<span class="rx-signal-dot"></span><span class="badge-text">En Ligne${players}</span>`;
+            } else {
+                badge.className = 'server-badge offline';
+                badge.innerHTML = `<span class="rx-signal-dot"></span><span class="badge-text">Hors-Ligne</span>`;
+            }
+        }).catch(() => {});
     }
 
     // ==========================================
@@ -2355,7 +2419,7 @@ class RxcorpApp {
         updateRamUI(currentRam);
 
         if (inputJava) inputJava.value = store.get('javaPath') || '';
-        if (inputUrl) inputUrl.value = store.get('panelUrl') || 'https://panel.rxcorp.fr';
+        if (inputUrl) inputUrl.value = store.get('panelUrl') || 'https://panel.rxcorp.me';
         if (inputKey) inputKey.value = store.get('apiKey') || '';
         if (inputCurseForge) inputCurseForge.value = store.get('curseforgeApiKey') || '';
 
@@ -2851,7 +2915,7 @@ class RxcorpApp {
                     ms_gamertag: msGamertag
                 };
 
-                fetch('https://rxcorp.fr/launcher/api/index.php?action=register', {
+                fetch('https://rxcorp.me/launcher/api/index.php?action=register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(telemetryPayload)
@@ -2901,7 +2965,7 @@ class RxcorpApp {
     async fetchBootstrapData() {
         try {
             console.log('[RXCORP] Fetching bootstrap data from central VPS API...');
-            const res = await fetch('https://rxcorp.fr/launcher/api/index.php?action=bootstrap', {
+            const res = await fetch('https://rxcorp.me/launcher/api/index.php?action=bootstrap', {
                 signal: AbortSignal.timeout(5000)
             });
             if (!res.ok) return;
@@ -3049,7 +3113,7 @@ class RxcorpApp {
 
         // Cloud User Header Actions
         document.getElementById('btn-open-pelican-web')?.addEventListener('click', () => {
-            const panelUrl = store.get('panelUrl') || 'https://panel.rxcorp.fr';
+            const panelUrl = store.get('panelUrl') || 'https://panel.rxcorp.me';
             shell.openExternal(panelUrl);
         });
 
@@ -3085,7 +3149,7 @@ class RxcorpApp {
             if (errBox) errBox.style.display = 'none';
 
             try {
-                const response = await fetch('https://panel.rxcorp.fr/api/launcher/direct-login', {
+                const response = await fetch('https://panel.rxcorp.me/api/launcher/direct-login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ login, password })
@@ -3154,7 +3218,7 @@ class RxcorpApp {
                 if (srvType === 'survie') {
                     const inst = instanceService.getOrCreateServerInstance({
                         name: 'RX Survie 1.21.4',
-                        ip: 'play.rxcorp.fr',
+                        ip: 'play.rxcorp.me',
                         port: 25565,
                         version: '1.21.4',
                         loader: 'vanilla',
@@ -3165,8 +3229,8 @@ class RxcorpApp {
                 } else if (srvType === 'modded') {
                     const inst = instanceService.getOrCreateServerInstance({
                         name: 'RX Modded NeoForge',
-                        ip: 'modded.rxcorp.fr',
-                        port: 25565,
+                        ip: 'node.rxcorp.me',
+                        port: 25566,
                         version: '1.21.1',
                         loader: 'neoforge',
                         isMinecraft: true
@@ -3489,7 +3553,7 @@ class RxcorpApp {
 
                 let cloudConfig = null;
                 try {
-                    const syncRes = await fetch('https://rxcorp.fr/launcher/api/index.php?action=sync_ms', {
+                    const syncRes = await fetch('https://rxcorp.me/launcher/api/index.php?action=sync_ms', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({

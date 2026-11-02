@@ -1,13 +1,13 @@
 {
     "name": "rxcorp-launcher",
     "productName": "RXLauncher",
-    "version": "2.7.3",
+    "version": "2.7.5",
     "description": "RXLauncher - Design Behance, Moteur RXSync, Infrastructure Cloud Pelican et Gestionnaire de Profils Minecraft",
     "main": "src/app.js",
     "author": {
         "name": "RXCORP Team"
     },
-    "url": "https://rxcorp.fr",
+    "url": "https://rxcorp.me",
     "scripts": {
         "start": "cross-env-shell NODE_ENV=dev electron .",
         "dev": "cross-env-shell DEV_TOOL=open nodemon --exec npm start",

@@ -67,9 +67,9 @@ class DiscordManager {
             const data = {
                 details: activity.details || 'RXLauncher',
                 state: activity.state || 'Dans le launcher • Prêt',
-                largeImageKey: activity.largeImageKey || 'https://rxcorp.fr/logos/assets/discord_asset_logo_1024.png',
+                largeImageKey: activity.largeImageKey || 'https://rxcorp.me/logos/assets/discord_asset_logo_1024.png',
                 largeImageText: activity.largeImageText || 'RXCORP - Infrastructure Gaming & Cloud',
-                smallImageKey: activity.smallImageKey || 'https://rxcorp.fr/assets/logo.png',
+                smallImageKey: activity.smallImageKey || 'https://rxcorp.me/assets/logo.png',
                 smallImageText: activity.smallImageText || 'RXCORP v2.4',
                 instance: false,
             };
@@ -80,8 +80,8 @@ class DiscordManager {
 
             // High priority official buttons
             data.buttons = [
-                { label: 'Site Officiel', url: 'https://rxcorp.fr' },
-                { label: 'Rejoindre RXCORP', url: 'https://rxcorp.fr' }
+                { label: 'Site Officiel', url: 'https://rxcorp.me' },
+                { label: 'Rejoindre RXCORP', url: 'https://rxcorp.me' }
             ];
 
             this.client.setActivity(data).then(() => {
@@ -98,9 +98,9 @@ class DiscordManager {
         this.setActivity({
             details: 'RXLauncher',
             state: 'Menu Principal • Prêt à jouer',
-            largeImageKey: 'https://rxcorp.fr/logos/assets/discord_asset_logo_1024.png',
+            largeImageKey: 'https://rxcorp.me/logos/assets/discord_asset_logo_1024.png',
             largeImageText: 'RXLauncher - Minecraft & Pelican Cloud',
-            smallImageKey: 'https://rxcorp.fr/assets/logo.png',
+            smallImageKey: 'https://rxcorp.me/assets/logo.png',
             smallImageText: 'En attente',
             startTimestamp: this.startTimestamp
         });
@@ -110,9 +110,9 @@ class DiscordManager {
         this.setActivity({
             details: 'RXLauncher',
             state: `Lancement de ${targetName}...`,
-            largeImageKey: 'https://rxcorp.fr/logos/assets/discord_asset_logo_1024.png',
+            largeImageKey: 'https://rxcorp.me/logos/assets/discord_asset_logo_1024.png',
             largeImageText: 'RXCORP - Infrastructure Gaming & Cloud',
-            smallImageKey: 'https://rxcorp.fr/assets/logo.png',
+            smallImageKey: 'https://rxcorp.me/assets/logo.png',
             smallImageText: 'Chargement...',
             startTimestamp: Date.now()
         });
@@ -122,9 +122,9 @@ class DiscordManager {
         this.setActivity({
             details: 'En jeu sur Minecraft',
             state: `Serveur : ${instanceOrServerName}`,
-            largeImageKey: 'https://rxcorp.fr/logos/assets/discord_asset_logo_1024.png',
+            largeImageKey: 'https://rxcorp.me/logos/assets/discord_asset_logo_1024.png',
             largeImageText: 'RXCORP - Infrastructure Gaming & Cloud',
-            smallImageKey: 'https://rxcorp.fr/assets/logo.png',
+            smallImageKey: 'https://rxcorp.me/assets/logo.png',
             smallImageText: 'En jeu',
             startTimestamp: Date.now()
         });

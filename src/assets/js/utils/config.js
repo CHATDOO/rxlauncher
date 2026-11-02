@@ -28,8 +28,8 @@ const defaultDeltaZoneConfig = {
     online: true,
     client_id: "00000000402b5328",
     socialLinks: [
-        { name: "Site Web", url: "https://rxcorp.fr" },
-        { name: "Panel", url: "https://panel.rxcorp.fr" }
+        { name: "Site Web", url: "https://rxcorp.me" },
+        { name: "Panel", url: "https://panel.rxcorp.me" }
     ]
 };
 
@@ -49,7 +49,7 @@ const defaultDeltaZoneInstances = [
         whitelistActive: false,
         status: {
             nameServer: "RXCORP",
-            ip: "panel.rxcorp.fr",
+            ip: "panel.rxcorp.me",
             port: null
         }
     }

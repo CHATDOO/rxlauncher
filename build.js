@@ -89,7 +89,7 @@ class Index {
                 npmRebuild: true,
                 publish: [{
                     provider: "generic",
-                    url: "https://rxcorp.fr/launcher/update/"
+                    url: "https://rxcorp.me/launcher/update/"
                 }],
                 win: {
                     icon: "./app/assets/images/icon/icon.ico",

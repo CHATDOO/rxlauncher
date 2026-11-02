@@ -271,7 +271,7 @@ if (!app.isPackaged) {
 
 autoUpdater.setFeedURL({
     provider: 'generic',
-    url: 'https://rxcorp.fr/launcher/update/'
+    url: 'https://rxcorp.me/launcher/update/'
 });
 
 let isCheckingManually = false;
@@ -500,7 +500,7 @@ ipcMain.on('start-web-auth', () => {
 
         authLoopbackServer.listen(portToTry, '127.0.0.1', () => {
             const actualPort = authLoopbackServer.address().port;
-            const targetUrl = `https://panel.rxcorp.fr/launcher/connect?port=${actualPort}&state=${state}`;
+            const targetUrl = `https://panel.rxcorp.me/launcher/connect?port=${actualPort}&state=${state}`;
             console.log('[WebAuth] Loopback listening on port', actualPort, 'Opening URL:', targetUrl);
             shell.openExternal(targetUrl);
         });

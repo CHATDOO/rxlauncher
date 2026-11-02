@@ -215,21 +215,26 @@ body {
     display: none;
 }
 
-.status-dot {
+.status-dot,
+.srv-dot {
     width: 7px;
     height: 7px;
     border-radius: 50%;
     background: var(--text-dim);
+    display: inline-block;
+    flex-shrink: 0;
 }
 
-.status-dot.online {
-    background: var(--emerald);
-    box-shadow: 0 0 8px var(--emerald);
+.status-dot.online,
+.srv-dot.online {
+    background: var(--rx-signal-live);
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
 }
 
-.status-dot.offline {
-    background: var(--danger);
-    box-shadow: 0 0 8px var(--danger);
+.status-dot.offline,
+.srv-dot.offline {
+    background: var(--rx-signal-danger);
+    box-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
 }
 
 .titlebar-controls {
@@ -1559,6 +1564,29 @@ body {
     background: rgba(239, 68, 68, 0.1);
     color: var(--rx-signal-danger);
     border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.server-badge .rx-signal-dot {
+    width: 6px;
+    height: 6px;
+    min-width: 6px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.server-badge.online .rx-signal-dot {
+    background-color: var(--rx-signal-live);
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+}
+
+.server-badge.starting .rx-signal-dot {
+    background-color: var(--rx-signal-warn);
+    box-shadow: 0 0 6px rgba(245, 158, 11, 0.4);
+}
+
+.server-badge.offline .rx-signal-dot {
+    background-color: var(--rx-signal-danger);
+    box-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
 }
 
 /* Instance Active Badge & Icon Tool Buttons */
