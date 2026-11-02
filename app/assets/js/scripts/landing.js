@@ -1029,7 +1029,7 @@ async function loadNews(){
                     comments = comments + ' Comment' + (comments === '1' ? '' : 's')
 
                     // Fix relative links in content.
-                    let content = el.find('content\\:encoded').text()
+                    let content = el.find('content\\:encoded').text() || el.find('description').text() || ''
                     let regex = /src="(?!http:\/\/|https:\/\/)(.+?)"/g
                     let matches
                     while((matches = regex.exec(content))){
@@ -1038,7 +1038,7 @@ async function loadNews(){
 
                     let link   = el.find('link').text()
                     let title  = el.find('title').text()
-                    let author = el.find('dc\\:creator').text()
+                    let author = el.find('dc\\:creator').text() || el.find('author').text() || 'RXCORP Team'
 
                     // Generate article.
                     articles.push(
