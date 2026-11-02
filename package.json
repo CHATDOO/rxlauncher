@@ -1,7 +1,7 @@
 {
     "name": "rxcorp-launcher",
     "productName": "RXLauncher",
-    "version": "2.7.6",
+    "version": "2.7.7",
     "description": "RXLauncher - Design Behance, Moteur RXSync, Infrastructure Cloud Pelican et Gestionnaire de Profils Minecraft",
     "main": "src/app.js",
     "author": {
