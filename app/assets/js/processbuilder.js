@@ -779,13 +779,12 @@ class ProcessBuilder {
         // Ex. 1.7.10 forge overrides mojang's guava with newer version.
         const finalLibs = {...mojangLibs, ...servLibs}
 
-        // If launching modern Forge / NeoForge, remove redundant jopt-simple from Mojang
-        // to prevent Java JPMS split-package ResolutionException (Modules forge and jopt.simple export package)
-        if (isUsingForgeBootstrap) {
-            for (const key of Object.keys(finalLibs)) {
-                if (key.includes('jopt-simple') || key.includes('joptsimple')) {
-                    delete finalLibs[key]
-                }
+        // Ensure installer jars are never included on the runtime classpath.
+        // The installer jar is only used by ForgeWrapper via -Dforgewrapper.installer
+        // and contains shaded classes (like jopt-simple) that trigger JPMS split-package collisions.
+        for (const [key, libPath] of Object.entries(finalLibs)) {
+            if (typeof libPath === 'string' && libPath.endsWith('-installer.jar')) {
+                delete finalLibs[key]
             }
         }
 
@@ -932,7 +931,12 @@ class ProcessBuilder {
         for(let mdl of mdls){
             const type = mdl.rawModule.type
             if(type === Type.ForgeHosted || type === Type.Fabric || type === Type.Library){
-                libs[mdl.getVersionlessMavenIdentifier()] = mdl.getPath()
+                const p = mdl.getPath()
+                const isInstaller = typeof p === 'string' && p.endsWith('-installer.jar')
+                const isModernForge = (type === Type.ForgeHosted && mcVersionAtLeast('1.13', this.server.rawServer.minecraftVersion))
+                if(!isModernForge && !isInstaller){
+                    libs[mdl.getVersionlessMavenIdentifier()] = p
+                }
                 if(mdl.subModules.length > 0){
                     const res = this._resolveModuleLibraries(mdl)
                     libs = {...libs, ...res}
@@ -964,9 +968,10 @@ class ProcessBuilder {
         let libs = {}
         for(let sm of mdl.subModules){
             if(sm.rawModule.type === Type.Library){
-
-                if(sm.rawModule.classpath ?? true) {
-                    libs[sm.getVersionlessMavenIdentifier()] = sm.getPath()
+                const p = sm.getPath()
+                const isInstaller = typeof p === 'string' && p.endsWith('-installer.jar')
+                if((sm.rawModule.classpath ?? true) && !isInstaller) {
+                    libs[sm.getVersionlessMavenIdentifier()] = p
                 }
             }
             // If this module has submodules, we need to resolve the libraries for those.
