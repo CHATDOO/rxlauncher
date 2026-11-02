@@ -1,9 +1,9 @@
 const { DistributionAPI } = require('helios-core/common')
-
 const ConfigManager = require('./configmanager')
 
-// Production Pelican Panel Distribution Endpoint
-exports.REMOTE_DISTRO_URL = 'https://panel.rxcorp.me/api/launcher/distribution'
+// By default, query server code from config (default: RX-8)
+const code = (ConfigManager.isLoaded && ConfigManager.isLoaded()) ? ConfigManager.getServerCode() : 'RX-8'
+exports.REMOTE_DISTRO_URL = `https://panel.rxcorp.me/api/launcher/distribution/${encodeURIComponent(code)}`
 
 const api = new DistributionAPI(
     ConfigManager.getLauncherDirectory(),

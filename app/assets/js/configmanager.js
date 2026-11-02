@@ -97,6 +97,7 @@ const DEFAULT_CONFIG = {
     clientToken: null,
     selectedServer: null, // Resolved
     selectedAccount: null,
+    serverCode: 'RX-8',
     authenticationDatabase: {},
     modConfigurations: [],
     javaConfig: {}
@@ -291,6 +292,25 @@ exports.getSelectedServer = function(def = false){
  */
 exports.setSelectedServer = function(serverID){
     config.selectedServer = serverID
+}
+
+/**
+ * Retrieve the saved Pelican server code.
+ * 
+ * @param {boolean} def Optional. If true, the default value will be returned.
+ * @returns {string} The Pelican server code.
+ */
+exports.getServerCode = function(def = false){
+    return (!def && config.serverCode) ? config.serverCode : 'RX-8'
+}
+
+/**
+ * Set the Pelican server code.
+ * 
+ * @param {string} serverCode The Pelican server code.
+ */
+exports.setServerCode = function(serverCode){
+    config.serverCode = serverCode
 }
 
 /**
