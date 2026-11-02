@@ -59,54 +59,85 @@ function getCurrentView(){
 
 async function showMainUI(data){
 
-    if(!isDev){
-        loggerAutoUpdater.info('Initializing..')
-        ipcRenderer.send('autoUpdateAction', 'initAutoUpdater', ConfigManager.getAllowPrerelease())
+    try {
+        if(!isDev){
+            loggerAutoUpdater.info('Initializing..')
+            ipcRenderer.send('autoUpdateAction', 'initAutoUpdater', ConfigManager.getAllowPrerelease())
+        }
+
+        try {
+            await prepareSettings(true)
+        } catch(settingsErr) {
+            console.error('Error preparing settings during startup:', settingsErr)
+        }
+
+        let serv = null
+        try {
+            serv = data.getServerById(ConfigManager.getSelectedServer())
+            if(!serv){
+                serv = data.getMainServer() || (data.servers && data.servers.length > 0 ? data.servers[0] : null)
+                if(serv){
+                    ConfigManager.setSelectedServer(serv.rawServer.id)
+                    ConfigManager.save()
+                }
+            }
+            if(serv){
+                updateSelectedServer(serv)
+            }
+        } catch(servErr) {
+            console.error('Error selecting server during startup:', servErr)
+        }
+
+        try {
+            refreshServerStatus()
+        } catch(statusErr) {
+            console.error('Error refreshing server status during startup:', statusErr)
+        }
+    } catch(globalErr) {
+        console.error('General startup error in showMainUI:', globalErr)
+    } finally {
+        setTimeout(() => {
+            document.getElementById('frameBar').style.backgroundColor = 'rgba(0, 0, 0, 0.5)'
+            document.body.style.backgroundImage = `url('assets/images/backgrounds/${document.body.getAttribute('bkid')}.jpg')`
+            $('#main').show()
+
+            const isLoggedIn = Object.keys(ConfigManager.getAuthAccounts()).length > 0
+
+            // If this is enabled in a development environment we'll get ratelimited.
+            // The relaunch frequency is usually far too high.
+            if(!isDev && isLoggedIn){
+                validateSelectedAccount()
+            }
+
+            if(ConfigManager.isFirstLaunch()){
+                currentView = VIEWS.welcome
+                $(VIEWS.welcome).fadeIn(1000)
+            } else {
+                if(isLoggedIn){
+                    currentView = VIEWS.landing
+                    $(VIEWS.landing).fadeIn(1000)
+                } else {
+                    loginOptionsCancelEnabled(false)
+                    loginOptionsViewOnLoginSuccess = VIEWS.landing
+                    loginOptionsViewOnLoginCancel = VIEWS.loginOptions
+                    currentView = VIEWS.loginOptions
+                    $(VIEWS.loginOptions).fadeIn(1000)
+                }
+            }
+
+            setTimeout(() => {
+                $('#loadingContainer').fadeOut(500, () => {
+                    $('#loadSpinnerImage').removeClass('rotating')
+                })
+            }, 250)
+            
+        }, 750)
     }
 
-    await prepareSettings(true)
-    updateSelectedServer(data.getServerById(ConfigManager.getSelectedServer()))
-    refreshServerStatus()
-    setTimeout(() => {
-        document.getElementById('frameBar').style.backgroundColor = 'rgba(0, 0, 0, 0.5)'
-        document.body.style.backgroundImage = `url('assets/images/backgrounds/${document.body.getAttribute('bkid')}.jpg')`
-        $('#main').show()
-
-        const isLoggedIn = Object.keys(ConfigManager.getAuthAccounts()).length > 0
-
-        // If this is enabled in a development environment we'll get ratelimited.
-        // The relaunch frequency is usually far too high.
-        if(!isDev && isLoggedIn){
-            validateSelectedAccount()
-        }
-
-        if(ConfigManager.isFirstLaunch()){
-            currentView = VIEWS.welcome
-            $(VIEWS.welcome).fadeIn(1000)
-        } else {
-            if(isLoggedIn){
-                currentView = VIEWS.landing
-                $(VIEWS.landing).fadeIn(1000)
-            } else {
-                loginOptionsCancelEnabled(false)
-                loginOptionsViewOnLoginSuccess = VIEWS.landing
-                loginOptionsViewOnLoginCancel = VIEWS.loginOptions
-                currentView = VIEWS.loginOptions
-                $(VIEWS.loginOptions).fadeIn(1000)
-            }
-        }
-
-        setTimeout(() => {
-            $('#loadingContainer').fadeOut(500, () => {
-                $('#loadSpinnerImage').removeClass('rotating')
-            })
-        }, 250)
-        
-    }, 750)
     // Disable tabbing to the news container.
     initNews().then(() => {
         $('#newsContainer *').attr('tabindex', '-1')
-    })
+    }).catch(() => {})
 }
 
 function showFatalStartupError(){

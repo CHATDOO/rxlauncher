@@ -1343,9 +1343,12 @@ function populateMemoryStatus(){
  * @param {string} execPath The executable path to populate against.
  */
 async function populateJavaExecDetails(execPath){
-    const server = (await DistroAPI.getDistribution()).getServerById(ConfigManager.getSelectedServer())
+    const distro = await DistroAPI.getDistribution()
+    const server = distro.getServerById(ConfigManager.getSelectedServer()) || distro.getMainServer() || distro.servers[0]
+    if(!server) return
 
-    const details = await validateSelectedJvm(ensureJavaDirIsRoot(execPath), server.effectiveJavaOptions.supported)
+    const supported = server.effectiveJavaOptions ? server.effectiveJavaOptions.supported : null
+    const details = await validateSelectedJvm(ensureJavaDirIsRoot(execPath), supported)
 
     if(details != null) {
         settingsJavaExecDetails.innerHTML = Lang.queryJS('settings.java.selectedJava', { version: details.semverStr, vendor: details.vendor })
@@ -1355,10 +1358,12 @@ async function populateJavaExecDetails(execPath){
 }
 
 function populateJavaReqDesc(server) {
+    if(!server || !server.effectiveJavaOptions) return
     settingsJavaReqDesc.innerHTML = Lang.queryJS('settings.java.requiresJava', { major: server.effectiveJavaOptions.suggestedMajor })
 }
 
 function populateJvmOptsLink(server) {
+    if(!server || !server.effectiveJavaOptions) return
     const major = server.effectiveJavaOptions.suggestedMajor
     settingsJvmOptsLink.innerHTML = Lang.queryJS('settings.java.availableOptions', { major: major })
     if(major >= 12) {
@@ -1376,9 +1381,10 @@ function populateJvmOptsLink(server) {
 }
 
 function bindMinMaxRam(server) {
+    if(!server) return
     // Store maximum memory values.
-    const SETTINGS_MAX_MEMORY = ConfigManager.getAbsoluteMaxRAM(server.rawServer.javaOptions?.ram)
-    const SETTINGS_MIN_MEMORY = ConfigManager.getAbsoluteMinRAM(server.rawServer.javaOptions?.ram)
+    const SETTINGS_MAX_MEMORY = ConfigManager.getAbsoluteMaxRAM(server.rawServer?.javaOptions?.ram)
+    const SETTINGS_MIN_MEMORY = ConfigManager.getAbsoluteMinRAM(server.rawServer?.javaOptions?.ram)
 
     // Set the max and min values for the ranged sliders.
     settingsMaxRAMRange.setAttribute('max', SETTINGS_MAX_MEMORY)
@@ -1391,12 +1397,22 @@ function bindMinMaxRam(server) {
  * Prepare the Java tab for display.
  */
 async function prepareJavaTab(){
-    const server = (await DistroAPI.getDistribution()).getServerById(ConfigManager.getSelectedServer())
-    bindMinMaxRam(server)
-    bindRangeSlider(server)
-    populateMemoryStatus()
-    populateJavaReqDesc(server)
-    populateJvmOptsLink(server)
+    const distro = await DistroAPI.getDistribution()
+    let server = distro.getServerById(ConfigManager.getSelectedServer())
+    if(!server){
+        server = distro.getMainServer() || distro.servers[0]
+        if(server){
+            ConfigManager.setSelectedServer(server.rawServer.id)
+            ConfigManager.save()
+        }
+    }
+    if(server){
+        bindMinMaxRam(server)
+        bindRangeSlider(server)
+        populateMemoryStatus()
+        populateJavaReqDesc(server)
+        populateJvmOptsLink(server)
+    }
 }
 
 /**
@@ -1673,7 +1689,8 @@ async function prepareSettingsStatus(force = false) {
     }
 
     try {
-        const statuses = await MojangRestAPI.getServiceStatus()
+        const response = await MojangRestAPI.status()
+        const statuses = response?.data
         const mojangBadgeEl = document.getElementById('statusBadgeMojang')
         const mojangListEl = document.getElementById('statusMojangList')
         if (statuses && statuses.length > 0 && mojangListEl) {
