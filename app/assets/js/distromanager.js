@@ -2,8 +2,8 @@ const { DistributionAPI } = require('helios-core/common')
 
 const ConfigManager = require('./configmanager')
 
-// RXCORP Production Distribution Manifest
-exports.REMOTE_DISTRO_URL = 'https://rxcorp.me/launcher/distribution/distribution.json'
+// Production Pelican Panel Distribution Endpoint
+exports.REMOTE_DISTRO_URL = 'https://panel.rxcorp.me/api/launcher/distribution'
 
 const api = new DistributionAPI(
     ConfigManager.getLauncherDirectory(),
