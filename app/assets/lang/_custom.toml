@@ -1,0 +1,46 @@
+# Fichier de personnalisation RXCORP Launcher
+
+[ejs.app]
+title = "RXLauncher"
+
+[ejs.landing]
+updateAvailableTooltip = "Mise à jour disponible"
+usernamePlaceholder = "Pseudo"
+usernameEditButton = "Changer"
+settingsTooltip = "Paramètres"
+serverStatus = "SERVEUR"
+serverStatusPlaceholder = "EN LIGNE"
+mojangStatus = "STATUT SERVICES"
+newsButton = "ACTUS"
+launchButton = "JOUER"
+launchButtonPlaceholder = "&#8226; Sélectionner un Serveur"
+launchDetails = "Initialisation..."
+mediaGitHubURL = "https://github.com/RXCORP-core/rxcorp-Launcher"
+mediaXURL = "#"
+mediaInstagramURL = "#"
+mediaYouTubeURL = "#"
+mediaDiscordURL = "https://discord.gg/rxcorp"
+
+[ejs.settings]
+sourceGithubLink = "https://rxcorp.me"
+supportLink = "https://rxcorp.me/support"
+
+[ejs.loginOptions]
+loginOptionsTitle = "Connexion RXLauncher"
+loginWithMicrosoft = "Connexion Microsoft"
+loginWithMojang = "Connexion Mojang / Hors-ligne"
+
+[ejs.login]
+loginCancelText = "Annuler"
+loginSubheader = "CONNEXION MINECRAFT"
+loginEmailPlaceholder = "EMAIL OU PSEUDO"
+loginPasswordPlaceholder = "MOT DE PASSE"
+loginButtonText = "SE CONNECTER"
+loginRememberMeText = "Se souvenir de moi"
+loginPasswordDisclaimer1 = "Vos identifiants sont vérifiés de façon sécurisée."
+loginPasswordDisclaimer2 = "RXCORP Launcher n'est pas affilié à Mojang AB."
+
+[ejs.welcome]
+welcomeHeader = "BIENVENUE SUR RXCORP"
+welcomeDescription = "Rejoignez l'univers Minecraft de RXCORP. Tous vos mods, configurations et mises à jour sont automatiquement synchronisés en temps réel dès que vous cliquez sur Jouer."
+welcomeDescCTA = "Connectez votre compte pour commencer l'aventure."

@@ -1,0 +1,60 @@
+appId: 'me.rxcorp.launcher'
+productName: 'RXLauncher'
+artifactName: '${productName}-setup-${version}.${ext}'
+
+copyright: 'Copyright © 2026 RXCORP'
+
+asar: true
+compression: 'maximum'
+
+files:
+  - '!{dist,.gitignore,.vscode,docs,dev-app-update.yml,.nvmrc,eslint.config.mjs}'
+
+extraResources:
+  - 'libraries'
+
+publish:
+  provider: 'generic'
+  url: 'https://rxcorp.me/launcher/update/'
+
+# Windows Configuration
+win: 
+  icon: 'build/icon.ico'
+  target: 
+    - target: 'nsis'
+      arch: 'x64'
+
+# Windows Installer Configuration
+nsis:
+  oneClick: false
+  perMachine: false
+  allowElevation: true
+  allowToChangeInstallationDirectory: true
+  runAfterFinish: true
+  installerIcon: 'build/icon.ico'
+  uninstallerIcon: 'build/icon.ico'
+
+# macOS Configuration
+mac:
+  icon: 'build/icon.icns'
+  target: 
+    - target: 'dmg'
+      arch:
+        - 'x64'
+        - 'arm64'
+  artifactName: '${productName}-setup-${version}-${arch}.${ext}'
+  category: 'public.app-category.games'
+
+# Linux Configuration
+linux: 
+  icon: 'build/icon.png'
+  target: 'AppImage'
+  maintainer: 'RXCORP Team'
+  vendor: 'RXCORP'
+  synopsis: 'RXCORP Modded Minecraft Launcher'
+  description: 'Launcher officiel RXCORP avec synchronisation automatique de mods et support Fabric/Forge.'
+  category: 'Game'
+
+directories:
+  buildResources: 'build'
+  output: 'dist'

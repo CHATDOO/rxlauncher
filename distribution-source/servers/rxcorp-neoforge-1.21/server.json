@@ -1,0 +1,10 @@
+{
+  "id": "rxcorp-neoforge-1.21",
+  "name": "RXCORP Neo (1.21.1)",
+  "description": "Serveur officiel RXCORP NeoForge 1.21.1",
+  "address": "rxcorp.me:25565",
+  "minecraftVersion": "1.21.1",
+  "modLoader": "NeoForge",
+  "mainServer": false,
+  "autoconnect": false
+}

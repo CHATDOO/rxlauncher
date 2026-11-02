@@ -1,0 +1,10 @@
+{
+  "id": "rxcorp-forge-1.20",
+  "name": "RXCORP Modded (1.20.1)",
+  "description": "Serveur officiel RXCORP Forge 1.20.1 avec synchronisation automatique de mods",
+  "address": "rxcorp.me:25566",
+  "minecraftVersion": "1.20.1",
+  "modLoader": "Forge",
+  "mainServer": true,
+  "autoconnect": false
+}
