@@ -12,9 +12,8 @@
             </div>
         <% } else{ %>  
             <div id="frameContentWin">
-                <div id="frameTitleDock" style="display: flex; align-items: center; gap: 8px;">
-                    <img src="assets/images/SealCircle.png" style="width: 16px; height: 16px; border-radius: 4px;" alt="RXCORP" />
-                    <span id="frameTitleText" style="font-weight: 600; letter-spacing: 0.5px;"><%= lang('app.title') %></span>
+                <div id="frameTitleDock">
+                    <span id="frameTitleText"><%= lang('app.title') %></span>
                 </div>
                 <div id="frameButtonDockWin">
                     <button class="frameButton fMb" id="frameButton_minimize" tabIndex="-1">
