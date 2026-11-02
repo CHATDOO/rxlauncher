@@ -13,11 +13,10 @@
         }
 
         body {
-            background: #08090e;
-            color: #ffffff;
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #0b0d13;
+            color: #f8fafc;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             width: 100vw;
@@ -26,26 +25,35 @@
             -webkit-app-region: drag;
         }
 
-        .splash-bg {
+        /* Ambient Dark Vignette */
+        .splash-vignette {
             position: fixed;
             inset: 0;
-            background: 
-                radial-gradient(circle at 30% 30%, rgba(244, 63, 94, 0.18) 0%, transparent 55%),
-                radial-gradient(circle at 70% 70%, rgba(244, 63, 94, 0.08) 0%, transparent 55%),
-                #08090e;
+            background: radial-gradient(circle at center, transparent 40%, rgba(5, 7, 11, 0.8) 100%);
+            pointer-events: none;
             z-index: 0;
         }
 
-        .splash-content {
+        /* Frosted Optical Glass Card */
+        .splash-card {
             position: relative;
             z-index: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 20px;
+            gap: 22px;
+            background: linear-gradient(145deg, rgba(18, 24, 38, 0.88) 0%, rgba(12, 16, 26, 0.94) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 38px 46px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 
+                        0 24px 60px -8px rgba(0, 0, 0, 0.70);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            min-width: 320px;
         }
 
-        .logo-container {
+        .logo-wrap {
             position: relative;
             display: flex;
             align-items: center;
@@ -54,131 +62,136 @@
 
         .logo-glow {
             position: absolute;
-            width: 120px;
-            height: 120px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(244, 63, 94, 0.35) 0%, transparent 70%);
-            filter: blur(20px);
-            animation: pulseGlow 2s ease-in-out infinite;
+            background: radial-gradient(circle, rgba(47, 91, 234, 0.40) 0%, transparent 70%);
+            filter: blur(18px);
+            animation: pulseGlow 2.4s ease-in-out infinite;
         }
 
         @keyframes pulseGlow {
-            0%, 100% { opacity: 0.6; transform: scale(0.95); }
-            50% { opacity: 1; transform: scale(1.05); }
+            0%, 100% { opacity: 0.5; transform: scale(0.95); }
+            50% { opacity: 1; transform: scale(1.08); }
         }
 
         .logo-img {
-            width: 72px;
-            height: 72px;
-            border-radius: 18px;
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
             object-fit: cover;
-            box-shadow: 0 0 30px rgba(244, 63, 94, 0.5);
+            box-shadow: 0 8px 24px rgba(47, 91, 234, 0.35);
             animation: logoIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             opacity: 0;
-            transform: scale(0.7);
+            transform: scale(0.8);
+            border: 1px solid rgba(255, 255, 255, 0.12);
         }
 
         @keyframes logoIn {
             to { opacity: 1; transform: scale(1); }
         }
 
-        .brand-row {
+        .brand-meta {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 4px;
-            animation: fadeUp 0.6s 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: fadeUp 0.6s 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             opacity: 0;
-            transform: translateY(8px);
+            transform: translateY(6px);
         }
 
         @keyframes fadeUp {
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .brand-name {
-            font-size: 28px;
+        .brand-title {
+            font-size: 22px;
             font-weight: 800;
-            letter-spacing: 3px;
-            color: #ffffff;
-            text-transform: uppercase;
-        }
-
-        .brand-version {
-            font-size: 11px;
-            font-weight: 600;
             letter-spacing: 2px;
-            color: #f43f5e;
+            color: #f8fafc;
             text-transform: uppercase;
-            opacity: 0.9;
         }
 
-        .progress-container {
+        .brand-badge {
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: #3b82f6;
+            text-transform: uppercase;
+            background: rgba(47, 91, 234, 0.12);
+            border: 1px solid rgba(47, 91, 234, 0.30);
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .progress-box {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 8px;
-            width: 220px;
-            animation: fadeUp 0.6s 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            width: 240px;
+            animation: fadeUp 0.6s 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             opacity: 0;
-            transform: translateY(8px);
+            transform: translateY(6px);
         }
 
         .progress-track {
             width: 100%;
-            height: 3px;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 2px;
+            height: 4px;
+            background: rgba(0, 0, 0, 0.50);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 4px;
             overflow: hidden;
         }
 
         .progress-fill {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, #f43f5e, #fb7185);
-            border-radius: 2px;
-            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 8px rgba(244, 63, 94, 0.6);
+            background: linear-gradient(90deg, #2F5BEA, #3b82f6);
+            border-radius: 4px;
+            transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 0 10px rgba(47, 91, 234, 0.6);
         }
 
         .progress-label {
-            font-size: 10px;
+            font-size: 10.5px;
             font-weight: 600;
-            letter-spacing: 1.5px;
-            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 1px;
+            color: #94a3b8;
             text-transform: uppercase;
         }
 
         .corner-badge {
             position: fixed;
-            bottom: 16px;
-            right: 16px;
-            font-size: 9px;
-            color: rgba(255, 255, 255, 0.2);
-            letter-spacing: 1px;
+            bottom: 12px;
+            right: 14px;
+            font-size: 10px;
+            color: #64748b;
+            letter-spacing: 0.5px;
         }
     </style>
 </head>
 <body>
-    <div class="splash-bg"></div>
+    <div class="splash-vignette"></div>
 
-    <div class="splash-content">
-        <div class="logo-container">
+    <div class="splash-card">
+        <div class="logo-wrap">
             <div class="logo-glow"></div>
             <img class="logo-img" src="assets/images/icon/icon.png" alt="RXCORP" 
                  onerror="this.style.display='none'">
         </div>
 
-        <div class="brand-row">
-            <div class="brand-name">RXLAUNCHER</div>
-            <div class="brand-version">BY RXCORP</div>
+        <div class="brand-meta">
+            <div class="brand-title">RXLAUNCHER</div>
+            <div class="brand-badge">RXCORP CLOUD SYNC</div>
         </div>
 
-        <div class="progress-container">
+        <div class="progress-box">
             <div class="progress-track">
                 <div class="progress-fill" id="splash-progress"></div>
             </div>
-            <div class="progress-label" id="splash-label">Initialisation...</div>
+            <div class="progress-label" id="splash-label">Démarrage...</div>
         </div>
     </div>
 
@@ -199,8 +212,8 @@
 
         const steps = [
             { pct: 30, label: 'Chargement des composants...' },
-            { pct: 60, label: 'Connexion au Cloud RXCORP...' },
-            { pct: 85, label: 'Initialisation des modules...' },
+            { pct: 60, label: 'Synchronisation Cloud RXCORP...' },
+            { pct: 85, label: 'Vérification du moteur RXSync...' },
             { pct: 100, label: 'Prêt ! Lancement...' }
         ];
 
@@ -214,12 +227,12 @@
                 if (s.pct === 100) {
                     isFinished = true;
                 } else {
-                    setTimeout(nextStep, 260 + Math.random() * 120);
+                    setTimeout(nextStep, 240 + Math.random() * 100);
                 }
             }
         }
 
-        setTimeout(nextStep, 150);
+        setTimeout(nextStep, 120);
     </script>
 </body>
 </html>

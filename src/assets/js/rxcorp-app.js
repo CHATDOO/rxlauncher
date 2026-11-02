@@ -1270,9 +1270,9 @@ class RxcorpApp {
                         modsSummary.innerText = cleanNames;
                         modsSummary.title = modsRes.mods.map(m => m.name).join('\n');
                         modsCount.innerText = `${modsRes.mods.length} mod(s)`;
-                        modsCount.style.background = 'rgba(244, 63, 94, 0.15)';
-                        modsCount.style.borderColor = 'rgba(244, 63, 94, 0.3)';
-                        modsCount.style.color = '#f43f5e';
+                        modsCount.style.background = 'rgba(47, 91, 234, 0.15)';
+                        modsCount.style.borderColor = 'rgba(47, 91, 234, 0.3)';
+                        modsCount.style.color = '#3b82f6';
                     } else {
                         modsSummary.innerText = 'Aucun mod requis (Vanilla)';
                         modsCount.innerText = 'Vanilla';

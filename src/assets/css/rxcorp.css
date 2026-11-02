@@ -7,18 +7,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@85..100,600..900&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 
 :root {
-    /* 6-Color Technical Infrastructure & Gaming Palette */
-    --rx-chassis-dark: #0b0d10;
-    --rx-chassis-panel: #14171d;
-    --rx-chassis-subtle: #191d25;
-    --rx-edge-rim: #232731;
-    --rx-edge-rim-bright: #323846;
+    /* Uniform Dark Canvas & Smoked Optical Glass (Apple / Notion Neo-Pro) */
+    --rx-chassis-dark: #0b0d13;
+    --rx-chassis-panel: rgba(18, 24, 38, 0.85);
+    --rx-chassis-subtle: rgba(24, 32, 50, 0.92);
+    --rx-edge-rim: rgba(255, 255, 255, 0.08);
+    --rx-edge-rim-bright: rgba(47, 91, 234, 0.40);
 
     /* RXCORP Crimson - Strictly the SOLE Strong Accent */
-    --rx-crimson-core: #e11d48;
-    --rx-crimson-hover: #be123c;
-    --rx-crimson-press: #9f1239;
-    --rx-crimson-tint: rgba(225, 29, 72, 0.12);
+    --rx-crimson-core: #2F5BEA;
+    --rx-crimson-hover: #2448bd;
+    --rx-crimson-press: #1d3b9e;
+    --rx-crimson-tint: rgba(47, 91, 234, 0.12);
 
     /* Functional Real-Time Telemetry & Status */
     --rx-signal-live: #10b981;
@@ -58,7 +58,7 @@
 
     --primary: var(--rx-crimson-core);
     --primary-hover: var(--rx-crimson-hover);
-    --primary-glow: rgba(225, 29, 72, 0.22);
+    --primary-glow: rgba(47, 91, 234, 0.22);
     --primary-subtle: var(--rx-crimson-tint);
 
     --emerald: var(--rx-signal-live);
@@ -71,13 +71,13 @@
     --danger: #ef4444;
     --discord: #5865f2;
 
-    /* Restrained, non-bubble radii */
-    --radius-xs: 3px;
-    --radius-sm: 4px;
-    --radius-md: 6px;
-    --radius-lg: 8px;
-    --radius-xl: 10px;
-    --radius-pill: 4px;
+    /* Restrained, elegant optical radii */
+    --radius-xs: 4px;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 14px;
+    --radius-xl: 16px;
+    --radius-pill: 20px;
 }
 
 /* Base resets */
@@ -144,11 +144,8 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: #090b10;
-    background-image: 
-        radial-gradient(circle at 14% 16%, rgba(244, 63, 94, 0.14) 0%, transparent 45%),
-        radial-gradient(circle at 86% 24%, rgba(244, 63, 94, 0.06) 0%, transparent 50%),
-        radial-gradient(circle at 50% 85%, rgba(14, 165, 233, 0.05) 0%, transparent 55%);
+    background-color: #0b0d13 !important;
+    background-image: none !important;
     z-index: -2;
     pointer-events: none;
 }
@@ -159,10 +156,9 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: radial-gradient(circle at center, rgba(10, 12, 18, 0.4) 0%, rgba(7, 8, 12, 0.95) 100%);
-    backdrop-filter: blur(40px);
-    z-index: -1;
+    background: transparent;
     pointer-events: none;
+    z-index: -1;
 }
 
 /* =========================================================================
@@ -388,16 +384,16 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(244, 63, 94, 0.12);
-    border: 1px solid rgba(244, 63, 94, 0.28);
+    background: rgba(47, 91, 234, 0.12);
+    border: 1px solid rgba(47, 91, 234, 0.28);
     transition: all 0.2s ease;
     user-select: none;
     margin-bottom: 2px;
 }
 
 .rail-brand-box:hover {
-    background: rgba(244, 63, 94, 0.2);
-    box-shadow: 0 0 16px rgba(244, 63, 94, 0.3);
+    background: rgba(47, 91, 234, 0.2);
+    box-shadow: 0 0 16px rgba(47, 91, 234, 0.3);
 }
 
 .rail-brand-logo {
@@ -495,7 +491,7 @@ body {
 .rail-add-btn {
     color: var(--primary);
     background: var(--primary-subtle);
-    border: 1px solid rgba(244, 63, 94, 0.25);
+    border: 1px solid rgba(47, 91, 234, 0.25);
 }
 
 .rail-add-btn:hover {
@@ -836,7 +832,7 @@ body {
     align-items: center;
     gap: 9px;
     cursor: pointer;
-    box-shadow: 0 2px 10px rgba(225, 29, 72, 0.28);
+    box-shadow: 0 2px 10px rgba(47, 91, 234, 0.28);
     transition: background-color 0.15s ease, transform 0.12s ease;
 }
 
@@ -849,7 +845,7 @@ body {
 .hero-play-tactile:hover {
     background: var(--rx-crimson-hover);
     transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(225, 29, 72, 0.4);
+    box-shadow: 0 4px 16px rgba(47, 91, 234, 0.4);
 }
 
 .hero-play-tactile:active {
@@ -1600,7 +1596,7 @@ body {
     font-weight: 700;
     background: var(--primary-subtle);
     color: var(--primary);
-    border: 1px solid rgba(244, 63, 94, 0.4);
+    border: 1px solid rgba(47, 91, 234, 0.4);
     box-shadow: 0 0 12px var(--primary-glow);
 }
 
@@ -1732,7 +1728,7 @@ body {
 /* Pelican User Header Bar (When Connected) */
 .cloud-user-header {
     background: rgba(16, 20, 31, 0.85);
-    border: 1px solid rgba(244, 63, 94, 0.25);
+    border: 1px solid rgba(47, 91, 234, 0.25);
     border-radius: var(--radius-md);
     padding: 14px 18px;
     margin-bottom: 16px;
@@ -1753,8 +1749,8 @@ body {
     width: 38px;
     height: 38px;
     border-radius: var(--radius-sm);
-    background: rgba(244, 63, 94, 0.12);
-    border: 1px solid rgba(244, 63, 94, 0.3);
+    background: rgba(47, 91, 234, 0.12);
+    border: 1px solid rgba(47, 91, 234, 0.3);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1801,13 +1797,13 @@ body {
 
 /* Pelican Auth Hero Card (When Disconnected) */
 .pelican-auth-hero-card {
-    background: linear-gradient(135deg, rgba(244, 63, 94, 0.08) 0%, rgba(16, 20, 31, 0.95) 100%);
-    border: 1px solid rgba(244, 63, 94, 0.3);
+    background: linear-gradient(135deg, rgba(47, 91, 234, 0.08) 0%, rgba(16, 20, 31, 0.95) 100%);
+    border: 1px solid rgba(47, 91, 234, 0.3);
     border-radius: var(--radius-md);
     padding: 32px 28px;
     margin-bottom: 24px;
     text-align: center;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 0 30px rgba(244, 63, 94, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 0 30px rgba(47, 91, 234, 0.08);
     position: relative;
     overflow: hidden;
 }
@@ -1816,14 +1812,14 @@ body {
     width: 54px;
     height: 54px;
     border-radius: 14px;
-    background: rgba(244, 63, 94, 0.12);
-    border: 1px solid rgba(244, 63, 94, 0.35);
+    background: rgba(47, 91, 234, 0.12);
+    border: 1px solid rgba(47, 91, 234, 0.35);
     color: var(--primary);
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 16px auto;
-    box-shadow: 0 0 20px rgba(244, 63, 94, 0.25);
+    box-shadow: 0 0 20px rgba(47, 91, 234, 0.25);
 }
 
 .pelican-hero-title {
@@ -1932,8 +1928,8 @@ body {
 }
 
 .public-server-card:hover {
-    border-color: rgba(244, 63, 94, 0.4);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(244, 63, 94, 0.1);
+    border-color: rgba(47, 91, 234, 0.4);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(47, 91, 234, 0.1);
 }
 
 /* Pelican Cloud Filter & Admin Scope Toolbar */
@@ -1978,8 +1974,8 @@ body {
 
 .cloud-filter-pill.active {
     color: #ffffff;
-    background: rgba(244, 63, 94, 0.15);
-    border-color: rgba(244, 63, 94, 0.35);
+    background: rgba(47, 91, 234, 0.15);
+    border-color: rgba(47, 91, 234, 0.35);
 }
 
 .cloud-filter-pill .pill-count {
@@ -1991,8 +1987,8 @@ body {
 }
 
 .cloud-filter-pill.active .pill-count {
-    background: rgba(244, 63, 94, 0.3);
-    color: #f43f5e;
+    background: rgba(47, 91, 234, 0.3);
+    color: #3b82f6;
 }
 
 .cloud-admin-scope-box {
@@ -2258,7 +2254,7 @@ body {
     justify-content: center;
     position: relative;
     overflow: hidden;
-    box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.9), 0 0 25px rgba(244, 63, 94, 0.15);
+    box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.9), 0 0 25px rgba(47, 91, 234, 0.15);
 }
 
 .skin-pedestal-halo {
@@ -2267,7 +2263,7 @@ body {
     width: 140px;
     height: 24px;
     border-radius: 50%;
-    background: radial-gradient(ellipse at center, rgba(244, 63, 94, 0.55) 0%, rgba(244, 63, 94, 0.15) 55%, transparent 70%);
+    background: radial-gradient(ellipse at center, rgba(47, 91, 234, 0.55) 0%, rgba(47, 91, 234, 0.15) 55%, transparent 70%);
     filter: blur(5px);
     pointer-events: none;
 }
@@ -2275,14 +2271,14 @@ body {
 .skin-render-img {
     height: 220px;
     object-fit: contain;
-    filter: drop-shadow(0 0 16px rgba(244, 63, 94, 0.45)) drop-shadow(0 14px 22px rgba(0, 0, 0, 0.9));
+    filter: drop-shadow(0 0 16px rgba(47, 91, 234, 0.45)) drop-shadow(0 14px 22px rgba(0, 0, 0, 0.9));
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease;
     z-index: 2;
 }
 
 .skin-render-img:hover {
     transform: scale(1.05) translateY(-2px);
-    filter: drop-shadow(0 0 24px rgba(244, 63, 94, 0.7)) drop-shadow(0 18px 26px rgba(0, 0, 0, 0.95));
+    filter: drop-shadow(0 0 24px rgba(47, 91, 234, 0.7)) drop-shadow(0 18px 26px rgba(0, 0, 0, 0.95));
 }
 
 .skin-profile-meta {
@@ -2305,7 +2301,7 @@ body {
     align-items: center;
     gap: 6px;
     background: var(--primary-subtle);
-    border: 1px solid rgba(244, 63, 94, 0.3);
+    border: 1px solid rgba(47, 91, 234, 0.3);
     border-radius: 12px;
     padding: 3px 10px;
     font-size: 11px;
@@ -3184,3 +3180,284 @@ body {
 
 
 
+
+
+/* =========================================================================
+   AUTHENTIC OPTICAL SMOKED GLASS SYSTEM (Matching rxcorp.me & panel.rxcorp.me)
+   Deep dark canvas (#0b0d13), specular hairline bevels, zero white milky fog
+   ========================================================================= */
+
+/* 1. App Titlebar */
+.app-titlebar {
+    height: 38px !important;
+    min-height: 38px !important;
+    background: rgba(11, 13, 19, 0.95) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+/* 2. Floating Navigation Rail */
+.dribbble-rail,
+.behance-rail {
+    background: rgba(14, 18, 28, 0.80) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 26px !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 12px 36px rgba(0, 0, 0, 0.60) !important;
+}
+
+.rail-brand-box {
+    background: rgba(47, 91, 234, 0.14) !important;
+    border: 1px solid rgba(47, 91, 234, 0.35) !important;
+    box-shadow: 0 0 16px rgba(47, 91, 234, 0.25) !important;
+    border-radius: 14px !important;
+}
+
+.rail-brand-box:hover {
+    background: rgba(47, 91, 234, 0.25) !important;
+    box-shadow: 0 0 20px rgba(47, 91, 234, 0.40) !important;
+}
+
+.rail-item.active {
+    background: rgba(47, 91, 234, 0.16) !important;
+    color: #3b82f6 !important;
+    border: 1px solid rgba(47, 91, 234, 0.35) !important;
+    box-shadow: 0 0 14px rgba(47, 91, 234, 0.25) !important;
+}
+
+.rail-item.active::before {
+    background: #2F5BEA !important;
+}
+
+/* 3. Hero Showcase Card */
+.hero-showcase-card {
+    background: linear-gradient(145deg, rgba(18, 24, 38, 0.85) 0%, rgba(12, 16, 26, 0.90) 100%) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 16px !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 12px 36px -4px rgba(0, 0, 0, 0.50) !important;
+}
+
+.hero-tag-badge {
+    background: rgba(47, 91, 234, 0.12) !important;
+    border: 1px solid rgba(47, 91, 234, 0.30) !important;
+    color: #3b82f6 !important;
+    border-radius: 20px !important;
+}
+
+.hero-play-tactile {
+    background: linear-gradient(135deg, #2F5BEA 0%, #1d4ed8 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    border-radius: 12px !important;
+    color: #ffffff !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 4px 18px rgba(47, 91, 234, 0.40) !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.hero-play-tactile:hover {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 8px 24px rgba(47, 91, 234, 0.60) !important;
+}
+
+.hero-instance-select-pill {
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 12px !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.hero-instance-select-pill:hover {
+    background: rgba(255, 255, 255, 0.09) !important;
+    border-color: rgba(47, 91, 234, 0.40) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10), 0 6px 18px rgba(0, 0, 0, 0.30) !important;
+}
+
+/* 4. Real-time Telemetry Cells */
+.telemetry-cell {
+    background: linear-gradient(145deg, rgba(18, 24, 38, 0.85) 0%, rgba(12, 16, 26, 0.90) 100%) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 12px !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 6px 20px rgba(0, 0, 0, 0.35) !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.telemetry-cell:hover {
+    background: linear-gradient(145deg, rgba(24, 32, 50, 0.92) 0%, rgba(15, 20, 32, 0.95) 100%) !important;
+    border-color: rgba(47, 91, 234, 0.40) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 8px 24px rgba(0, 0, 0, 0.40) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* 5. Server & Profile Cards */
+.server-card {
+    background: linear-gradient(145deg, rgba(18, 24, 38, 0.85) 0%, rgba(12, 16, 26, 0.90) 100%) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 14px !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 10px 28px -4px rgba(0, 0, 0, 0.50) !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.server-card:hover {
+    background: linear-gradient(145deg, rgba(24, 32, 50, 0.92) 0%, rgba(15, 20, 32, 0.95) 100%) !important;
+    border-color: rgba(47, 91, 234, 0.40) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 16px 40px -6px rgba(0, 0, 0, 0.65) !important;
+}
+
+.server-card.active-local-card {
+    border-color: rgba(47, 91, 234, 0.70) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 0 20px rgba(47, 91, 234, 0.25) !important;
+}
+
+/* 6. Pelican Cloud Hero & Sync Boxes */
+.pelican-auth-hero-card,
+.pelican-sync-box {
+    background: linear-gradient(145deg, rgba(18, 24, 38, 0.85) 0%, rgba(12, 16, 26, 0.90) 100%) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 16px !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 12px 36px rgba(0, 0, 0, 0.50) !important;
+}
+
+.pelican-hero-icon-box {
+    background: rgba(47, 91, 234, 0.15) !important;
+    border: 1px solid rgba(47, 91, 234, 0.35) !important;
+    color: #3b82f6 !important;
+    border-radius: 14px !important;
+}
+
+/* 7. Mod Cards */
+.mod-card {
+    background: linear-gradient(145deg, rgba(18, 24, 38, 0.85) 0%, rgba(12, 16, 26, 0.90) 100%) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 14px !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.mod-card:hover {
+    background: linear-gradient(145deg, rgba(24, 32, 50, 0.92) 0%, rgba(15, 20, 32, 0.95) 100%) !important;
+    border-color: rgba(47, 91, 234, 0.40) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 14px 32px rgba(0, 0, 0, 0.55) !important;
+}
+
+/* 8. Settings Cards */
+.settings-card {
+    background: linear-gradient(145deg, rgba(18, 24, 38, 0.85) 0%, rgba(12, 16, 26, 0.90) 100%) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 14px !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* 9. Modals (Overlays & Cards) */
+.rx-modal-overlay {
+    background: rgba(5, 7, 11, 0.75) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+}
+
+.rx-modal-card {
+    background: linear-gradient(145deg, rgba(18, 24, 38, 0.95) 0%, rgba(12, 16, 26, 0.98) 100%) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.10) !important;
+    border-radius: 16px !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 24px 60px rgba(0, 0, 0, 0.80) !important;
+}
+
+/* 10. Tactile Buttons & Inputs */
+.rx-btn-primary,
+.btn-emerald {
+    background: linear-gradient(135deg, #2F5BEA 0%, #1d4ed8 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    border-radius: 10px !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.20), 0 4px 16px rgba(47, 91, 234, 0.35) !important;
+    font-weight: 700 !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.rx-btn-primary:hover,
+.btn-emerald:hover {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.30), 0 6px 22px rgba(47, 91, 234, 0.55) !important;
+    transform: translateY(-1px) !important;
+}
+
+.rx-btn-secondary,
+.btn-dark {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.09) !important;
+    border-radius: 10px !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    color: #f1f5f9 !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.rx-btn-secondary:hover,
+.btn-dark:hover {
+    background: rgba(255, 255, 255, 0.10) !important;
+    border-color: rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
+    transform: translateY(-1px) !important;
+}
+
+.form-input,
+.form-select,
+.mod-search-bar {
+    background: rgba(0, 0, 0, 0.40) !important;
+    border: 1px solid rgba(255, 255, 255, 0.09) !important;
+    border-radius: 10px !important;
+    color: #ffffff !important;
+    transition: all 0.18s ease !important;
+}
+
+.form-input:focus,
+.form-select:focus,
+.mod-search-bar:focus-within {
+    border-color: #2F5BEA !important;
+    box-shadow: 0 0 12px rgba(47, 91, 234, 0.25) !important;
+    outline: none !important;
+}
+
+/* 11. RAM Pills & Chips */
+.ram-pill-btn {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 8px !important;
+    color: var(--text-muted) !important;
+    transition: all 0.15s ease !important;
+}
+
+.ram-pill-btn.active {
+    background: rgba(47, 91, 234, 0.18) !important;
+    border-color: rgba(47, 91, 234, 0.45) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 12px rgba(47, 91, 234, 0.25) !important;
+}
+
+.mod-chip.active {
+    background: rgba(47, 91, 234, 0.18) !important;
+    border-color: rgba(47, 91, 234, 0.45) !important;
+    color: #3b82f6 !important;
+}
