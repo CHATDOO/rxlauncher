@@ -172,7 +172,7 @@
                 <span class="settingsTabHeaderText"><%- lang('settings.tabJavaHeaderText') %></span>
                 <span class="settingsTabHeaderDesc"><%- lang('settings.tabJavaHeaderDesc') %></span>
             </div>
-            <div class="settingsSelServContainer">
+            <div class="settingsSelServContainer" style="display: none;">
                 <div class="settingsSelServContent">
 
                 </div>
@@ -189,7 +189,7 @@
                         <div class="settingsMemoryContentItem">
                             <span class="settingsMemoryHeader"><%- lang('settings.maxRAM') %></span>
                             <div class="settingsMemoryActionContainer">
-                                <div id="settingsMaxRAMRange" class="rangeSlider" cValue="MaxRAM" serverDependent min="3" max="8" value="3" step="0.5">
+                                <div id="settingsMaxRAMRange" class="rangeSlider" cValue="MaxRAM" min="3" max="8" value="3" step="0.5">
                                     <div class="rangeSliderBar"></div>
                                     <div class="rangeSliderTrack"></div>
                                 </div>
@@ -199,7 +199,7 @@
                         <div class="settingsMemoryContentItem">
                             <span class="settingsMemoryHeader"><%- lang('settings.minRAM') %></span>
                             <div class="settingsMemoryActionContainer">
-                                <div id="settingsMinRAMRange" class="rangeSlider" cValue="MinRAM" serverDependent min="3" max="8" value="3" step="0.5">
+                                <div id="settingsMinRAMRange" class="rangeSlider" cValue="MinRAM" min="3" max="8" value="3" step="0.5">
                                     <div class="rangeSliderBar"></div>
                                     <div class="rangeSliderTrack"></div>
                                 </div>
@@ -241,7 +241,7 @@
                                 </g>
                             </svg>
                         </div>
-                        <input class="settingsFileSelVal" id="settingsJavaExecVal" type="text" value="null" cValue="JavaExecutable" serverDependent disabled>
+                        <input class="settingsFileSelVal" id="settingsJavaExecVal" type="text" value="null" cValue="JavaExecutable" disabled>
                         <button class="settingsFileSelButton" id="settingsJavaExecSel" dialogTitle="<%- lang('settings.javaExecSelDialogTitle') %>" dialogDirectory="false"><%- lang('settings.javaExecSelButtonText') %></button>
                     </div>
                 </div>
@@ -264,7 +264,7 @@
                             </g>
                         </svg>
                     </div>
-                    <input id="settingsJVMOptsVal" cValue="JVMOptions" serverDependent type="text">
+                    <input id="settingsJVMOptsVal" cValue="JVMOptions" type="text">
                 </div>
                 <div id="settingsJVMOptsDesc"><%- lang('settings.jvmOptsDesc') %><br><a href="#" id="settingsJvmOptsLink"><!-- Available Options --></a></div>
             </div>

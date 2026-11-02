@@ -100,7 +100,11 @@ const DEFAULT_CONFIG = {
     serverCode: 'RX-8',
     authenticationDatabase: {},
     modConfigurations: [],
-    javaConfig: {}
+    javaConfig: {},
+    globalMinRAM: null,
+    globalMaxRAM: null,
+    globalJavaExecutable: null,
+    globalJVMOptions: null
 }
 
 let config = null
@@ -149,6 +153,16 @@ exports.load = function(){
         }
         if(doValidate){
             config = validateKeySet(DEFAULT_CONFIG, config)
+            if(config.javaConfig){
+                const servers = Object.keys(config.javaConfig)
+                if(servers.length > 0){
+                    const first = config.javaConfig[servers[0]]
+                    if(!config.globalMinRAM && first?.minRAM) config.globalMinRAM = first.minRAM
+                    if(!config.globalMaxRAM && first?.maxRAM) config.globalMaxRAM = first.maxRAM
+                    if(!config.globalJavaExecutable && first?.executable) config.globalJavaExecutable = first.executable
+                    if(!config.globalJVMOptions && first?.jvmOptions) config.globalJVMOptions = first.jvmOptions
+                }
+            }
             exports.save()
         }
     }
@@ -579,109 +593,207 @@ exports.ensureJavaConfig = function(serverid, effectiveJavaOptions, ram) {
     if(!Object.prototype.hasOwnProperty.call(config.javaConfig, serverid) || !config.javaConfig[serverid]) {
         config.javaConfig[serverid] = defaultJavaConfig(effectiveJavaOptions, ram)
     }
+    // Synchronize global launcher-wide settings into this server instance
+    if(config.globalMinRAM != null) {
+        config.javaConfig[serverid].minRAM = config.globalMinRAM
+    }
+    if(config.globalMaxRAM != null) {
+        config.javaConfig[serverid].maxRAM = config.globalMaxRAM
+    }
+    if(config.globalJavaExecutable != null) {
+        config.javaConfig[serverid].executable = config.globalJavaExecutable
+    }
+    if(config.globalJVMOptions != null) {
+        config.javaConfig[serverid].jvmOptions = config.globalJVMOptions
+    }
 }
 
 /**
  * Retrieve the minimum amount of memory for JVM initialization.
  * 
- * @param {string} serverid The server id.
+ * @param {string} serverid The server id (optional).
  * @returns {string} The minimum amount of memory for JVM initialization.
  */
 exports.getMinRAM = function(serverid){
-    if(!config.javaConfig || !config.javaConfig[serverid]){
-        return '1G'
+    if(config?.globalMinRAM != null){
+        return config.globalMinRAM
     }
-    return config.javaConfig[serverid].minRAM || '1G'
+    if(serverid && config?.javaConfig?.[serverid]?.minRAM){
+        return config.javaConfig[serverid].minRAM
+    }
+    if(config?.javaConfig){
+        for(const key of Object.keys(config.javaConfig)){
+            if(config.javaConfig[key]?.minRAM){
+                return config.javaConfig[key].minRAM
+            }
+        }
+    }
+    return '1G'
 }
 
 /**
- * Set the minimum amount of memory for JVM initialization.
+ * Set the minimum amount of memory for JVM initialization globally.
  * 
- * @param {string} serverid The server id.
+ * @param {string} serverid The server id, or the minRAM value if called globally.
  * @param {string} minRAM The new minimum amount of memory for JVM initialization.
  */
 exports.setMinRAM = function(serverid, minRAM){
+    let val = minRAM
+    if(val === undefined){
+        val = serverid
+    }
     if(!config.javaConfig) config.javaConfig = {}
-    if(!config.javaConfig[serverid]) config.javaConfig[serverid] = defaultJavaConfig17()
-    config.javaConfig[serverid].minRAM = minRAM
+    config.globalMinRAM = val
+    for(const key of Object.keys(config.javaConfig)){
+        if(config.javaConfig[key]){
+            config.javaConfig[key].minRAM = val
+        }
+    }
+    if(serverid && typeof serverid === 'string' && serverid !== val){
+        if(!config.javaConfig[serverid]) config.javaConfig[serverid] = defaultJavaConfig17()
+        config.javaConfig[serverid].minRAM = val
+    }
 }
 
 /**
  * Retrieve the maximum amount of memory for JVM initialization.
  * 
- * @param {string} serverid The server id.
+ * @param {string} serverid The server id (optional).
  * @returns {string} The maximum amount of memory for JVM initialization.
  */
 exports.getMaxRAM = function(serverid){
-    if(!config.javaConfig || !config.javaConfig[serverid]){
-        return '4G'
+    if(config?.globalMaxRAM != null){
+        return config.globalMaxRAM
     }
-    return config.javaConfig[serverid].maxRAM || '4G'
+    if(serverid && config?.javaConfig?.[serverid]?.maxRAM){
+        return config.javaConfig[serverid].maxRAM
+    }
+    if(config?.javaConfig){
+        for(const key of Object.keys(config.javaConfig)){
+            if(config.javaConfig[key]?.maxRAM){
+                return config.javaConfig[key].maxRAM
+            }
+        }
+    }
+    return '4G'
 }
 
 /**
- * Set the maximum amount of memory for JVM initialization.
+ * Set the maximum amount of memory for JVM initialization globally.
  * 
- * @param {string} serverid The server id.
+ * @param {string} serverid The server id, or the maxRAM value if called globally.
  * @param {string} maxRAM The new maximum amount of memory for JVM initialization.
  */
 exports.setMaxRAM = function(serverid, maxRAM){
+    let val = maxRAM
+    if(val === undefined){
+        val = serverid
+    }
     if(!config.javaConfig) config.javaConfig = {}
-    if(!config.javaConfig[serverid]) config.javaConfig[serverid] = defaultJavaConfig17()
-    config.javaConfig[serverid].maxRAM = maxRAM
+    config.globalMaxRAM = val
+    for(const key of Object.keys(config.javaConfig)){
+        if(config.javaConfig[key]){
+            config.javaConfig[key].maxRAM = val
+        }
+    }
+    if(serverid && typeof serverid === 'string' && serverid !== val){
+        if(!config.javaConfig[serverid]) config.javaConfig[serverid] = defaultJavaConfig17()
+        config.javaConfig[serverid].maxRAM = val
+    }
 }
 
 /**
  * Retrieve the path of the Java Executable.
  * 
- * This is a resolved configuration value and defaults to null until externally assigned.
- * 
- * @param {string} serverid The server id.
+ * @param {string} serverid The server id (optional).
  * @returns {string} The path of the Java Executable.
  */
 exports.getJavaExecutable = function(serverid){
-    if(!config.javaConfig || !config.javaConfig[serverid]){
-        return null
+    if(config?.globalJavaExecutable != null){
+        return config.globalJavaExecutable
     }
-    return config.javaConfig[serverid].executable || null
+    if(serverid && config?.javaConfig?.[serverid]?.executable != null){
+        return config.javaConfig[serverid].executable
+    }
+    if(config?.javaConfig){
+        for(const key of Object.keys(config.javaConfig)){
+            if(config.javaConfig[key]?.executable != null){
+                return config.javaConfig[key].executable
+            }
+        }
+    }
+    return null
 }
 
 /**
- * Set the path of the Java Executable.
+ * Set the path of the Java Executable globally.
  * 
- * @param {string} serverid The server id.
+ * @param {string} serverid The server id, or executable path if called globally.
  * @param {string} executable The new path of the Java Executable.
  */
 exports.setJavaExecutable = function(serverid, executable){
+    let val = executable
+    if(val === undefined){
+        val = serverid
+    }
     if(!config.javaConfig) config.javaConfig = {}
-    if(!config.javaConfig[serverid]) config.javaConfig[serverid] = defaultJavaConfig17()
-    config.javaConfig[serverid].executable = executable
+    config.globalJavaExecutable = val
+    for(const key of Object.keys(config.javaConfig)){
+        if(config.javaConfig[key]){
+            config.javaConfig[key].executable = val
+        }
+    }
+    if(serverid && typeof serverid === 'string' && serverid !== val){
+        if(!config.javaConfig[serverid]) config.javaConfig[serverid] = defaultJavaConfig17()
+        config.javaConfig[serverid].executable = val
+    }
 }
 
 /**
  * Retrieve the additional arguments for JVM initialization.
  * 
- * @param {string} serverid The server id.
+ * @param {string} serverid The server id (optional).
  * @returns {Array.<string>} An array of the additional arguments for JVM initialization.
  */
 exports.getJVMOptions = function(serverid){
-    if(!config.javaConfig || !config.javaConfig[serverid]){
-        return []
+    if(config?.globalJVMOptions != null){
+        return config.globalJVMOptions
     }
-    return config.javaConfig[serverid].jvmOptions || []
+    if(serverid && config?.javaConfig?.[serverid]?.jvmOptions){
+        return config.javaConfig[serverid].jvmOptions
+    }
+    if(config?.javaConfig){
+        for(const key of Object.keys(config.javaConfig)){
+            if(config.javaConfig[key]?.jvmOptions){
+                return config.javaConfig[key].jvmOptions
+            }
+        }
+    }
+    return []
 }
 
 /**
- * Set the additional arguments for JVM initialization.
+ * Set the additional arguments for JVM initialization globally.
  * 
- * @param {string} serverid The server id.
- * @param {Array.<string>} jvmOptions An array of the new additional arguments for JVM 
- * initialization.
+ * @param {string} serverid The server id, or array of arguments if called globally.
+ * @param {Array.<string>} jvmOptions An array of the new additional arguments for JVM initialization.
  */
 exports.setJVMOptions = function(serverid, jvmOptions){
+    let val = jvmOptions
+    if(val === undefined){
+        val = serverid
+    }
     if(!config.javaConfig) config.javaConfig = {}
-    if(!config.javaConfig[serverid]) config.javaConfig[serverid] = defaultJavaConfig17()
-    config.javaConfig[serverid].jvmOptions = jvmOptions
+    config.globalJVMOptions = val
+    for(const key of Object.keys(config.javaConfig)){
+        if(config.javaConfig[key]){
+            config.javaConfig[key].jvmOptions = val
+        }
+    }
+    if(serverid && typeof serverid === 'string' && serverid !== val){
+        if(!config.javaConfig[serverid]) config.javaConfig[serverid] = defaultJavaConfig17()
+        config.javaConfig[serverid].jvmOptions = val
+    }
 }
 
 // Game Settings

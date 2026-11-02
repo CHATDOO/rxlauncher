@@ -87,6 +87,7 @@ class ProcessBuilder {
     build(){
         fs.ensureDirSync(this.gameDir)
         this.ensureServersDat()
+        this.syncSharedGameOptions()
         const tempNativePath = path.join(os.tmpdir(), ConfigManager.getTempNativeFolder(), crypto.pseudoRandomBytes(16).toString('hex'))
         process.throwDeprecation = true
         this.setupLiteLoader()
@@ -139,6 +140,11 @@ class ProcessBuilder {
         })
         child.on('close', (code) => {
             logger.info('Exited with code', code)
+            try {
+                this.saveSharedGameOptions()
+            } catch(e) {
+                logger.warn('Failed to save shared options after game exit:', e)
+            }
             fs.remove(tempNativePath, (err) => {
                 if(err){
                     logger.warn('Error while deleting temp dir', err)
@@ -149,6 +155,164 @@ class ProcessBuilder {
         })
 
         return child
+    }
+
+    getSharedDirectory() {
+        return path.join(ConfigManager.getDataDirectory(), 'shared')
+    }
+
+    syncSharedGameOptions() {
+        try {
+            const sharedDir = this.getSharedDirectory()
+            fs.ensureDirSync(sharedDir)
+
+            const optionFiles = [
+                'options.txt',
+                'optionsof.txt',
+                'optionsshaders.txt',
+                'optionsiris.txt',
+                'sodiumoptions.json'
+            ]
+
+            // 1. Initial discovery: if shared options.txt doesn't exist, search existing instances for the newest one
+            const sharedOptionsTxt = path.join(sharedDir, 'options.txt')
+            if (!fs.existsSync(sharedOptionsTxt)) {
+                let newestFile = null
+                let newestMtime = 0
+                const instanceBase = ConfigManager.getInstanceDirectory()
+                if (fs.existsSync(instanceBase)) {
+                    const instances = fs.readdirSync(instanceBase)
+                    for (const inst of instances) {
+                        const candidate = path.join(instanceBase, inst, 'options.txt')
+                        if (fs.existsSync(candidate)) {
+                            try {
+                                const stat = fs.statSync(candidate)
+                                if (stat.mtimeMs > newestMtime) {
+                                    newestMtime = stat.mtimeMs
+                                    newestFile = candidate
+                                }
+                            } catch (_) {}
+                        }
+                    }
+                }
+                if (newestFile) {
+                    logger.info(`Bootstrapping shared options from newest instance: ${newestFile}`)
+                    fs.copyFileSync(newestFile, sharedOptionsTxt)
+                }
+            }
+
+            // 2. Synchronize option files between sharedDir and this.gameDir
+            for (const file of optionFiles) {
+                const src = path.join(sharedDir, file)
+                const dest = path.join(this.gameDir, file)
+
+                const srcExists = fs.existsSync(src)
+                const destExists = fs.existsSync(dest)
+
+                if (srcExists && !destExists) {
+                    fs.copyFileSync(src, dest)
+                } else if (!srcExists && destExists) {
+                    fs.copyFileSync(dest, src)
+                } else if (srcExists && destExists) {
+                    try {
+                        const srcMtime = fs.statSync(src).mtimeMs
+                        const destMtime = fs.statSync(dest).mtimeMs
+                        if (destMtime > srcMtime) {
+                            fs.copyFileSync(dest, src)
+                        } else if (srcMtime > destMtime) {
+                            fs.copyFileSync(src, dest)
+                        }
+                    } catch (_) {}
+                }
+            }
+
+            // 3. Synchronize folders: resourcepacks, shaderpacks
+            const sharedFolders = ['resourcepacks', 'shaderpacks']
+            for (const folder of sharedFolders) {
+                const sharedFolderPath = path.join(sharedDir, folder)
+                const gameFolderPath = path.join(this.gameDir, folder)
+                fs.ensureDirSync(sharedFolderPath)
+
+                let linkNeeded = true
+                if (fs.existsSync(gameFolderPath)) {
+                    try {
+                        const stat = fs.lstatSync(gameFolderPath)
+                        if (stat.isSymbolicLink()) {
+                            linkNeeded = false
+                        } else {
+                            // Regular directory - copy existing contents to shared if any, then remove to link
+                            const files = fs.readdirSync(gameFolderPath)
+                            for (const f of files) {
+                                const sf = path.join(sharedFolderPath, f)
+                                const gf = path.join(gameFolderPath, f)
+                                if (!fs.existsSync(sf)) {
+                                    fs.copySync(gf, sf)
+                                }
+                            }
+                            fs.removeSync(gameFolderPath)
+                        }
+                    } catch (err) {
+                        logger.warn(`Could not migrate existing ${folder} directory:`, err)
+                        linkNeeded = false
+                    }
+                }
+
+                if (linkNeeded) {
+                    try {
+                        const type = process.platform === 'win32' ? 'junction' : 'dir'
+                        fs.symlinkSync(sharedFolderPath, gameFolderPath, type)
+                        logger.info(`Linked ${folder} -> ${sharedFolderPath}`)
+                    } catch (err) {
+                        logger.warn(`Could not create junction/symlink for ${folder}, falling back to copy:`, err)
+                        fs.copySync(sharedFolderPath, gameFolderPath)
+                    }
+                }
+            }
+        } catch (err) {
+            logger.warn('Error during syncSharedGameOptions:', err)
+        }
+    }
+
+    saveSharedGameOptions() {
+        try {
+            const sharedDir = this.getSharedDirectory()
+            fs.ensureDirSync(sharedDir)
+
+            const optionFiles = [
+                'options.txt',
+                'optionsof.txt',
+                'optionsshaders.txt',
+                'optionsiris.txt',
+                'sodiumoptions.json'
+            ]
+
+            for (const file of optionFiles) {
+                const gameFile = path.join(this.gameDir, file)
+                const sharedFile = path.join(sharedDir, file)
+                if (fs.existsSync(gameFile)) {
+                    fs.copyFileSync(gameFile, sharedFile)
+                }
+            }
+
+            // Fallback for folders if symlink was not active
+            const sharedFolders = ['resourcepacks', 'shaderpacks']
+            for (const folder of sharedFolders) {
+                const sharedFolderPath = path.join(sharedDir, folder)
+                const gameFolderPath = path.join(this.gameDir, folder)
+                if (fs.existsSync(gameFolderPath) && fs.existsSync(sharedFolderPath)) {
+                    try {
+                        const stat = fs.lstatSync(gameFolderPath)
+                        if (!stat.isSymbolicLink()) {
+                            fs.copySync(gameFolderPath, sharedFolderPath)
+                        }
+                    } catch (_) {}
+                }
+            }
+
+            logger.info('Saved in-game options to shared directory.')
+        } catch (err) {
+            logger.warn('Error during saveSharedGameOptions:', err)
+        }
     }
 
     /**
