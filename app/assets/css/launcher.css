@@ -2483,36 +2483,42 @@ input:checked + .toggleSwitchSlider:before {
     justify-content: flex-end;
     padding-right: 25px;
     box-sizing: border-box;
+    pointer-events: none;
 }
 
 /* Lower content container. */
 #landingContainer > #lower {
     height: 23%;
     display: flex;
+    justify-content: space-between;
+    align-items: center;
     background: linear-gradient(to top, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+    position: relative;
+    z-index: 100;
 }
 #landingContainer > #lower > #left {
     position: relative;
     transition: top 2s ease;
     top: 0px;
     height: 100%;
-    width: 33%;
+    width: auto;
     display: inline-flex;
-    justify-content: center;
+    justify-content: flex-start;
+    padding-left: 25px;
 }
 #landingContainer > #lower > #left #content {
     position: relative;
     top: 25px;
     display: inline-flex;
     line-height: 24px;
-    left: 50px;
+    left: 0px;
 }
 #landingContainer > #lower > #center {
     position: relative;
     transition: top 2s ease;
     top: 0px;
     height: 100%;
-    width: 34%;
+    width: auto;
     display: inline-flex;
     justify-content: center;
 }
@@ -2520,7 +2526,7 @@ input:checked + .toggleSwitchSlider:before {
     position: relative;
     z-index: 500;
     transition: top 2s ease;
-    top: 10px;
+    top: 25px;
 }
 #landingContainer > #lower > #right {
     position: relative;
@@ -2528,10 +2534,9 @@ input:checked + .toggleSwitchSlider:before {
     top: 0px;
     height: 100%;
     width: auto;
-    flex: 1;
     display: inline-flex;
     justify-content: flex-end;
-    padding-right: 35px;
+    padding-right: 25px;
     box-sizing: border-box;
 }
 
@@ -3017,9 +3022,10 @@ input:checked + .toggleSwitchSlider:before {
     display: flex;
     flex-direction: column;
     position: relative;
-    top: 50px;
+    top: 25px;
     align-items: center;
-    height: calc(100% - 50px);
+    height: auto;
+    pointer-events: auto;
 }
 
 /* Right hand user content container. */
@@ -3092,8 +3098,8 @@ input:checked + .toggleSwitchSlider:before {
     position: relative;
     display: flex;
     flex-direction: column;
-    margin-top: 25px;
-    height: calc(100% - 95px);
+    margin-top: 15px;
+    height: auto;
     width: 70px;
     align-items: center;
 }
@@ -4024,7 +4030,6 @@ input:checked + .toggleSwitchSlider:before {
         opacity: 0.15;
     }
 }
-}
 
 .rxBrandText {
     display: flex;
@@ -4104,7 +4109,6 @@ input:checked + .toggleSwitchSlider:before {
     to {
         transform: rotate(360deg);
     }
-}
 }
 
 /* Class which is applied when the spinner image is spinning. */
@@ -4398,18 +4402,22 @@ input:checked + .toggleSwitchSlider:before {
     background: rgba(12, 15, 22, 0.60);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    border-top: 1px solid rgba(255, 255, 255, 0.20);
-    border-bottom: none;
-    border-radius: 10px 10px 0 0;
-    padding: 6px 20px;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-top: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 10px;
+    padding: 6px 18px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
     transition: all 0.25s ease;
 }
 #newsButton:hover {
     background: rgba(18, 22, 32, 0.75);
-    border-color: rgba(255, 255, 255, 0.25);
-    box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.28);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    transform: translateY(-1px);
 }
 
 /* 7. Bottom-Right Launch Content Area & Details */
@@ -4420,8 +4428,9 @@ input:checked + .toggleSwitchSlider:before {
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-top: 1px solid rgba(255, 255, 255, 0.22);
     border-radius: 12px;
-    padding: 8px 20px;
+    padding: 8px 18px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    display: inline-flex;
     align-items: center;
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -4429,6 +4438,18 @@ input:checked + .toggleSwitchSlider:before {
     background: rgba(16, 20, 28, 0.72);
     border-color: rgba(255, 255, 255, 0.25);
     box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55);
+}
+#landingContainer > #lower > #right #launch_content .bot_divider {
+    margin-left: 12px;
+    margin-right: 12px;
+}
+#server_selection_button {
+    max-width: 190px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    vertical-align: middle;
 }
 #launch_details {
     background: rgba(12, 15, 22, 0.65);

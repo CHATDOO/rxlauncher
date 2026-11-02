@@ -134,13 +134,21 @@ document.getElementById('launch_button').addEventListener('click', async e => {
 
 // Bind settings button
 document.getElementById('settingsMediaButton').onclick = async e => {
-    await prepareSettings()
+    try {
+        await prepareSettings()
+    } catch(err) {
+        loggerLanding.error('Error preparing settings:', err)
+    }
     switchView(getCurrentView(), VIEWS.settings)
 }
 
 // Bind avatar overlay button.
 document.getElementById('avatarOverlay').onclick = async e => {
-    await prepareSettings()
+    try {
+        await prepareSettings()
+    } catch(err) {
+        loggerLanding.error('Error preparing settings:', err)
+    }
     switchView(getCurrentView(), VIEWS.settings, 500, 500, () => {
         settingsNavItemListener(document.getElementById('settingsNavAccount'), false)
     })
@@ -742,7 +750,7 @@ function slide_(up){
         lCLLeft.style.top = '0px'
         lCLCenter.style.top = '0px'
         lCLRight.style.top = '0px'
-        newsBtn.style.top = '10px'
+        newsBtn.style.top = '25px'
     }
 }
 

@@ -714,19 +714,35 @@ document.getElementById('settingsGameHeight').addEventListener('keydown', (e) =>
 
 const settingsModsContainer = document.getElementById('settingsModsContainer')
 
+function getResolvedServer(distro) {
+    if (!distro) return null
+    const selectedId = ConfigManager.getSelectedServer()
+    let serv = selectedId ? distro.getServerById(selectedId) : null
+    if (!serv) {
+        serv = distro.getMainServer() || (distro.servers && distro.servers.length > 0 ? distro.servers[0] : null)
+        if (serv) {
+            ConfigManager.setSelectedServer(serv.rawServer.id)
+            ConfigManager.save()
+        }
+    }
+    return serv
+}
+
 /**
  * Resolve and update the mods on the UI.
  */
 async function resolveModsForUI(){
-    const serv = ConfigManager.getSelectedServer()
-
     const distro = await DistroAPI.getDistribution()
-    const servConf = ConfigManager.getModConfiguration(serv)
+    const serv = getResolvedServer(distro)
+    if (!serv) return
 
-    const modStr = parseModulesForUI(distro.getServerById(serv).modules, false, servConf.mods)
+    const servConf = ConfigManager.getModConfiguration(serv.rawServer.id) || { mods: [] }
+    const modStr = parseModulesForUI(serv.modules || [], false, servConf.mods || [])
 
-    document.getElementById('settingsReqModsContent').innerHTML = modStr.reqMods
-    document.getElementById('settingsOptModsContent').innerHTML = modStr.optMods
+    const reqEl = document.getElementById('settingsReqModsContent')
+    const optEl = document.getElementById('settingsOptModsContent')
+    if (reqEl) reqEl.innerHTML = modStr.reqMods
+    if (optEl) optEl.innerHTML = modStr.optMods
 }
 
 /**
@@ -863,7 +879,9 @@ let CACHE_DROPIN_MODS
  * populate the results onto the UI.
  */
 async function resolveDropinModsForUI(){
-    const serv = (await DistroAPI.getDistribution()).getServerById(ConfigManager.getSelectedServer())
+    const distro = await DistroAPI.getDistribution()
+    const serv = getResolvedServer(distro)
+    if (!serv) return
     CACHE_SETTINGS_MODS_DIR = path.join(ConfigManager.getInstanceDirectory(), serv.rawServer.id, 'mods')
     CACHE_DROPIN_MODS = DropinModUtil.scanForDropinMods(CACHE_SETTINGS_MODS_DIR, serv.rawServer.minecraftVersion)
 
@@ -1002,7 +1020,9 @@ let CACHE_SELECTED_SHADERPACK
  * Load shaderpack information.
  */
 async function resolveShaderpacksForUI(){
-    const serv = (await DistroAPI.getDistribution()).getServerById(ConfigManager.getSelectedServer())
+    const distro = await DistroAPI.getDistribution()
+    const serv = getResolvedServer(distro)
+    if (!serv) return
     CACHE_SETTINGS_INSTANCE_DIR = path.join(ConfigManager.getInstanceDirectory(), serv.rawServer.id)
     CACHE_SHADERPACKS = DropinModUtil.scanForShaderpacks(CACHE_SETTINGS_INSTANCE_DIR)
     CACHE_SELECTED_SHADERPACK = DropinModUtil.getEnabledShaderpack(CACHE_SETTINGS_INSTANCE_DIR)
@@ -1078,7 +1098,9 @@ function bindShaderpackButton() {
  * Load the currently selected server information onto the mods tab.
  */
 async function loadSelectedServerOnModsTab(){
-    const serv = (await DistroAPI.getDistribution()).getServerById(ConfigManager.getSelectedServer())
+    const distro = await DistroAPI.getDistribution()
+    const serv = getResolvedServer(distro)
+    if (!serv) return
 
     for(const el of document.getElementsByClassName('settingsSelServContent')) {
         el.innerHTML = `
@@ -1726,19 +1748,23 @@ async function prepareSettingsStatus(force = false) {
   * @param {boolean} first Whether or not it is the first load.
   */
 async function prepareSettings(first = false) {
-    if(first){
-        setupSettingsTabs()
-        initSettingsValidators()
-        prepareUpdateTab()
-        prepareNewsTab()
-        prepareStatusTab()
-    } else {
-        await prepareModsTab()
+    try {
+        if(first){
+            setupSettingsTabs()
+            initSettingsValidators()
+            prepareUpdateTab()
+            prepareNewsTab()
+            prepareStatusTab()
+        } else {
+            await prepareModsTab()
+        }
+        await initSettingsValues()
+        prepareAccountsTab()
+        await prepareJavaTab()
+        prepareAboutTab()
+    } catch (err) {
+        loggerSettings.error('Error in prepareSettings:', err)
     }
-    await initSettingsValues()
-    prepareAccountsTab()
-    await prepareJavaTab()
-    prepareAboutTab()
 }
 
 // Prepare the settings UI on startup.
