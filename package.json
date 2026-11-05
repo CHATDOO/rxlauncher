@@ -1,6 +1,6 @@
 {
   "name": "rxcorp-launcher",
-  "version": "3.2.1",
+  "version": "3.2.2",
   "productName": "RXLauncher",
   "description": "RXLauncher - Launcher Minecraft officiel RXCORP avec synchronisation automatique de mods",
   "author": "RXCORP Team <contact@rxcorp.me>",
@@ -9,6 +9,7 @@
   "private": true,
   "main": "index.js",
   "scripts": {
+    "postinstall": "node scripts/patch-helios.js",
     "start": "electron .",
     "dist": "electron-builder build",
     "dist:win": "electron-builder build --win --x64",
