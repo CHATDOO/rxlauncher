@@ -167,6 +167,30 @@ exports.addMojangAccount = async function(username, password) {
     }
 }
 
+/**
+ * Add an offline account (no Mojang/Microsoft auth). The UUID matches what the
+ * Minecraft server computes for offline players: UUID v3 of "OfflinePlayer:<name>".
+ *
+ * @param {string} name Player name, 3-16 chars [A-Za-z0-9_].
+ * @returns {Promise.<Object>} The created account.
+ */
+exports.addOfflineAccount = async function(name) {
+    const clean = (name || '').trim()
+    if(!/^[A-Za-z0-9_]{3,16}$/.test(clean)) {
+        return Promise.reject({
+            title: Lang.queryJS('login.offline.invalidTitle'),
+            desc: Lang.queryJS('login.offline.invalidDesc')
+        })
+    }
+    const hash = require('crypto').createHash('md5').update('OfflinePlayer:' + clean, 'utf8').digest()
+    hash[6] = (hash[6] & 0x0f) | 0x30 // version 3
+    hash[8] = (hash[8] & 0x3f) | 0x80 // IETF variant
+    const uuid = hash.toString('hex')
+    const ret = ConfigManager.addOfflineAuthAccount(uuid, clean)
+    ConfigManager.save()
+    return ret
+}
+
 const AUTH_MODE = { FULL: 0, MS_REFRESH: 1, MC_REFRESH: 2 }
 
 /**
@@ -276,6 +300,11 @@ exports.addMicrosoftAccount = async function(authCode) {
 exports.removeMojangAccount = async function(uuid){
     try {
         const authAcc = ConfigManager.getAuthAccount(uuid)
+        if(authAcc && authAcc.type === 'offline') {
+            ConfigManager.removeAuthAccount(uuid)
+            ConfigManager.save()
+            return Promise.resolve()
+        }
         const response = await MojangRestAPI.invalidate(authAcc.accessToken, ConfigManager.getClientToken())
         if(response.responseStatus === RestResponseStatus.SUCCESS) {
             ConfigManager.removeAuthAccount(uuid)
@@ -416,7 +445,9 @@ async function validateSelectedMicrosoftAccount(){
 exports.validateSelected = async function(){
     const current = ConfigManager.getSelectedAccount()
 
-    if(current.type === 'microsoft') {
+    if(current.type === 'offline') {
+        return true
+    } else if(current.type === 'microsoft') {
         return await validateSelectedMicrosoftAccount()
     } else {
         return await validateSelectedMojangAccount()

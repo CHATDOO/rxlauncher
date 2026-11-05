@@ -339,7 +339,7 @@ async function syncServerFromOverlayCode(codeVal) {
     if (serverSelectCodeStatus) {
         serverSelectCodeStatus.style.display = 'block'
         serverSelectCodeStatus.style.color = 'rgba(255, 255, 255, 0.85)'
-        serverSelectCodeStatus.textContent = 'Connexion au serveur...'
+        serverSelectCodeStatus.textContent = Lang.queryJS('rx.code.connecting')
     }
 
     try {
@@ -371,7 +371,7 @@ async function syncServerFromOverlayCode(codeVal) {
         if (serverSelectCodeStatus) {
             serverSelectCodeStatus.style.display = 'block'
             serverSelectCodeStatus.style.color = '#10b981'
-            serverSelectCodeStatus.textContent = `✓ ${targetRaw.name} (Instance prête)`
+            serverSelectCodeStatus.textContent = Lang.queryJS('rx.code.ready', { name: targetRaw.name })
             setTimeout(() => {
                 if (serverSelectCodeStatus) serverSelectCodeStatus.style.display = 'none'
             }, 4000)
@@ -380,7 +380,7 @@ async function syncServerFromOverlayCode(codeVal) {
         if (serverSelectCodeStatus) {
             serverSelectCodeStatus.style.display = 'block'
             serverSelectCodeStatus.style.color = '#ef4444'
-            serverSelectCodeStatus.textContent = '✗ Code invalide ou inaccessible'
+            serverSelectCodeStatus.textContent = Lang.queryJS('rx.code.invalid')
             setTimeout(() => {
                 if (serverSelectCodeStatus) serverSelectCodeStatus.style.display = 'none'
             }, 4000)

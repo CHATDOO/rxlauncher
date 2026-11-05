@@ -3,9 +3,12 @@ const fs = require('fs-extra')
 const path = require('path')
 const ConfigManager = require('./configmanager')
 
-// By default, query server code from config (default: RX-8)
-const code = (ConfigManager.isLoaded && ConfigManager.isLoaded()) ? ConfigManager.getServerCode() : 'RX-8'
-exports.REMOTE_DISTRO_URL = `https://panel.rxcorp.me/api/launcher/distribution/${encodeURIComponent(code)}`
+// Query the distribution for the player's saved server code.
+// No code = public placeholder distribution (no real server is exposed without its code)
+const code = (ConfigManager.isLoaded && ConfigManager.isLoaded()) ? ConfigManager.getServerCode() : ''
+exports.REMOTE_DISTRO_URL = code
+    ? `https://panel.rxcorp.me/api/launcher/distribution/${encodeURIComponent(code)}`
+    : 'https://panel.rxcorp.me/api/launcher/distribution'
 
 const api = new DistributionAPI(
     ConfigManager.getLauncherDirectory(),
@@ -111,6 +114,51 @@ api.addServerInstance = async function(targetRaw, serverCode, fullDistroData = n
         ConfigManager.ensureJavaConfig(targetRaw.id, serverObj.effectiveJavaOptions)
     }
     return serverObj
+}
+
+/**
+ * Drop every locally cached server the player has no valid code for.
+ * Older builds merged the panel's public listing into distribution.json, so a
+ * player could still see other people's servers. Each kept server must have an
+ * instance.json with a code that the panel still accepts.
+ *
+ * @returns {Promise<boolean>} true if the local list changed.
+ */
+api.pruneUnauthorizedServers = async function() {
+    const launcherDir = ConfigManager.getLauncherDirectory()
+    const instanceBaseDir = ConfigManager.getInstanceDirectory()
+    const distroFilePath = this.distroPath || path.join(launcherDir, 'distribution.json')
+    if (!(await fs.pathExists(distroFilePath))) return false
+
+    let raw
+    try { raw = await fs.readJson(distroFilePath) } catch (e) { return false }
+    if (!raw || !Array.isArray(raw.servers)) return false
+
+    const kept = []
+    for (const s of raw.servers) {
+        if (s.id === 'rxcorp-mc-default') { kept.push(s); continue }
+        let code = null
+        try { code = (await fs.readJson(path.join(instanceBaseDir, s.id, 'instance.json'))).code } catch (e) { /* no instance.json */ }
+        if (!code) continue
+        try {
+            const res = await fetch(`https://panel.rxcorp.me/api/launcher/distribution/${encodeURIComponent(code)}`)
+            if (res.status === 404 || res.status === 403) continue        // code revoked/invalid
+            if (res.ok) {
+                const data = await res.json()
+                const fresh = (data.servers || [])[0]
+                kept.push(fresh && fresh.id === s.id ? Object.assign(fresh, { mainServer: s.mainServer }) : s)
+                continue
+            }
+        } catch (e) { /* offline: keep what the player legitimately synced */ }
+        kept.push(s)
+    }
+
+    if (kept.length === raw.servers.length && kept.every((s, i) => s.id === raw.servers[i].id)) return false
+    raw.servers = kept
+    await fs.writeJson(distroFilePath, raw, { spaces: 2 })
+    this.rawDistribution = raw
+    this.distribution = new HeliosDistribution(raw, this.commonDir || ConfigManager.getCommonDirectory(), this.instanceDir || instanceBaseDir)
+    return true
 }
 
 exports.DistroAPI = api

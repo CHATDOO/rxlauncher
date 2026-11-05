@@ -51,9 +51,13 @@ function shakeError(element){
  * 
  * @param {string} value The email value.
  */
+// Offline mode: only a player name is required (Mojang auth servers are gone).
+const validOfflineName = /^[a-zA-Z0-9_]{3,16}$/
+lp = true
+
 function validateEmail(value){
     if(value){
-        if(!basicEmail.test(value) && !validUsername.test(value)){
+        if(!validOfflineName.test(value)){
             showError(loginEmailError, Lang.queryJS('login.error.invalidValue'))
             loginDisabled(true)
             lu = false
@@ -103,6 +107,12 @@ loginPassword.addEventListener('focusout', (e) => {
 // Validate input for each field.
 loginUsername.addEventListener('input', (e) => {
     validateEmail(e.target.value)
+})
+loginUsername.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter' && !loginButton.disabled){
+        e.preventDefault()
+        loginButton.click()
+    }
 })
 loginPassword.addEventListener('input', (e) => {
     validatePassword(e.target.value)
@@ -187,7 +197,7 @@ loginButton.addEventListener('click', () => {
     // Show loading stuff.
     loginLoading(true)
 
-    AuthManager.addMojangAccount(loginUsername.value, loginPassword.value).then((value) => {
+    AuthManager.addOfflineAccount(loginUsername.value).then((value) => {
         updateSelectedAccount(value)
         loginButton.innerHTML = loginButton.innerHTML.replace(Lang.queryJS('login.loggingIn'), Lang.queryJS('login.success'))
         $('.circle-loader').toggleClass('load-complete')

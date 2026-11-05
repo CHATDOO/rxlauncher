@@ -168,9 +168,9 @@ noSelection = "Aucun serveur sélectionné"
 loading = "Chargement..."
 
 [js.landing.serverStatus]
-server = "SERVEUR"
+server = "Serveur"
 offline = "HORS LIGNE"
-players = "JOUEURS"
+players = "Joueurs"
 
 [js.landing.systemScan]
 checking = "Vérification des informations système..."

@@ -1,0 +1,69 @@
+# Textes RXCORP en français (chargés si Windows est en français)
+
+[ejs.landing]
+updateAvailableTooltip = "Mise à jour disponible"
+usernamePlaceholder = "Pseudo"
+usernameEditButton = "Changer"
+settingsTooltip = "Paramètres"
+serverStatus = "Serveur"
+serverStatusPlaceholder = "—"
+mojangStatus = "Services Mojang"
+newsButton = "Actualités"
+launchButton = "Jouer"
+launchButtonPlaceholder = "Choisir un serveur"
+launchDetails = "Initialisation..."
+brandStatus = "Serveurs actifs"
+codeLabel = "Code serveur"
+codeSync = "Synchroniser"
+codePlaceholder = "RX-12-ABC123"
+
+[ejs.overlay]
+serverSelectCodePlaceholder = "Ajouter un serveur avec son code"
+serverSelectCodeSync = "Ajouter"
+
+[ejs.settings]
+navNews = "Actualités"
+navStatus = "Statut des services"
+mojangAccount = "Hors ligne"
+addMojangAccount = "+ Ajouter un compte hors ligne"
+
+[ejs.loginOptions]
+loginOptionsTitle = "Connexion RXLauncher"
+loginWithMicrosoft = "Connexion Microsoft"
+loginWithMojang = "Jouer hors ligne"
+
+[ejs.login]
+loginCancelText = "Annuler"
+loginSubheader = "Jouer hors ligne"
+loginEmailPlaceholder = "Pseudo Minecraft"
+loginPasswordPlaceholder = "Mot de passe"
+loginButtonText = "Continuer"
+loginRememberMeText = "Se souvenir de moi"
+loginPasswordDisclaimer1 = "Aucun mot de passe : choisissez un pseudo de 3 à 16 caractères (lettres, chiffres, _)."
+loginPasswordDisclaimer2 = "Le mode hors ligne ne fonctionne que sur les serveurs qui l'autorisent (online-mode=false). Pas de skin officiel."
+
+[ejs.welcome]
+welcomeHeader = "Bienvenue sur RXCORP"
+welcomeDescription = "Rejoignez l'univers Minecraft de RXCORP. Vos mods, configurations et mises à jour se synchronisent automatiquement dès que vous cliquez sur Jouer."
+welcomeDescCTA = "Connectez votre compte pour commencer."
+
+[js.login]
+login = "Continuer"
+loggingIn = "Création du compte..."
+
+[js.login.error]
+invalidValue = "3 à 16 caractères : lettres, chiffres ou _"
+requiredValue = "Entrez un pseudo"
+
+[js.login.offline]
+invalidTitle = "Pseudo invalide"
+invalidDesc = "Le pseudo doit faire 3 à 16 caractères et ne contenir que des lettres, des chiffres ou _."
+
+[js.landing.serverStatus]
+server = "Serveur"
+players = "Joueurs"
+
+[js.rx.code]
+connecting = "Connexion..."
+invalid = "✗ Code invalide"
+ready = "✓ {name}"

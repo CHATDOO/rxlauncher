@@ -1,50 +1,17 @@
-# Fichier de personnalisation RXCORP Launcher
+# RXCORP Launcher - shared customizations (links, brand). Texts live in _custom_fr / _custom_en.
 
 [ejs.app]
 title = "RXLauncher"
 
 [ejs.landing]
-updateAvailableTooltip = "Mise à jour disponible"
-usernamePlaceholder = "Pseudo"
-usernameEditButton = "Changer"
-settingsTooltip = "Paramètres"
-serverStatus = "SERVEUR"
-serverStatusPlaceholder = "—"
-mojangStatus = "STATUT SERVICES"
-newsButton = "ACTUS"
-launchButton = "JOUER"
-launchButtonPlaceholder = "&#8226; Sélectionner un serveur"
-launchDetails = "Initialisation..."
 mediaWebsiteURL = "https://rxcorp.me"
 mediaPanelURL = "https://panel.rxcorp.me"
-mediaGitHubURL = "https://github.com/RXCORP-core/rxcorp-Launcher"
+mediaGitHubURL = "https://github.com/CHATDOO"
 mediaXURL = "#"
 mediaInstagramURL = "#"
 mediaYouTubeURL = "#"
 mediaDiscordURL = "https://discord.gg/rxcorp"
 
 [ejs.settings]
-navNews = "Actualités"
-navStatus = "Statut Services"
-sourceGithubLink = "https://rxcorp.me"
+sourceGithubLink = "https://github.com/CHATDOO"
 supportLink = "https://rxcorp.me/support"
-
-[ejs.loginOptions]
-loginOptionsTitle = "Connexion RXLauncher"
-loginWithMicrosoft = "Connexion Microsoft"
-loginWithMojang = "Connexion Mojang / Hors-ligne"
-
-[ejs.login]
-loginCancelText = "Annuler"
-loginSubheader = "CONNEXION MINECRAFT"
-loginEmailPlaceholder = "EMAIL OU PSEUDO"
-loginPasswordPlaceholder = "MOT DE PASSE"
-loginButtonText = "SE CONNECTER"
-loginRememberMeText = "Se souvenir de moi"
-loginPasswordDisclaimer1 = "Vos identifiants sont vérifiés de façon sécurisée."
-loginPasswordDisclaimer2 = "RXCORP Launcher n'est pas affilié à Mojang AB."
-
-[ejs.welcome]
-welcomeHeader = "BIENVENUE SUR RXCORP"
-welcomeDescription = "Rejoignez l'univers Minecraft de RXCORP. Tous vos mods, configurations et mises à jour sont automatiquement synchronisés en temps réel dès que vous cliquez sur Jouer."
-welcomeDescCTA = "Connectez votre compte pour commencer l'aventure."

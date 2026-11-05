@@ -1,0 +1,69 @@
+# RXCORP texts in English (loaded when Windows is not in French)
+
+[ejs.landing]
+updateAvailableTooltip = "Update available"
+usernamePlaceholder = "Username"
+usernameEditButton = "Change"
+settingsTooltip = "Settings"
+serverStatus = "Server"
+serverStatusPlaceholder = "—"
+mojangStatus = "Mojang services"
+newsButton = "News"
+launchButton = "Play"
+launchButtonPlaceholder = "Choose a server"
+launchDetails = "Starting..."
+brandStatus = "Servers online"
+codeLabel = "Server code"
+codeSync = "Sync"
+codePlaceholder = "RX-12-ABC123"
+
+[ejs.overlay]
+serverSelectCodePlaceholder = "Add a server with its code"
+serverSelectCodeSync = "Add"
+
+[ejs.settings]
+navNews = "News"
+navStatus = "Service status"
+mojangAccount = "Offline"
+addMojangAccount = "+ Add offline account"
+
+[ejs.loginOptions]
+loginOptionsTitle = "RXLauncher sign-in"
+loginWithMicrosoft = "Sign in with Microsoft"
+loginWithMojang = "Play offline"
+
+[ejs.login]
+loginCancelText = "Cancel"
+loginSubheader = "Play offline"
+loginEmailPlaceholder = "Minecraft username"
+loginPasswordPlaceholder = "Password"
+loginButtonText = "Continue"
+loginRememberMeText = "Remember me"
+loginPasswordDisclaimer1 = "No password: pick a username of 3 to 16 characters (letters, numbers, _)."
+loginPasswordDisclaimer2 = "Offline mode only works on servers that allow it (online-mode=false). No official skin."
+
+[ejs.welcome]
+welcomeHeader = "Welcome to RXCORP"
+welcomeDescription = "Join the RXCORP Minecraft community. Your mods, configs and updates sync automatically as soon as you hit Play."
+welcomeDescCTA = "Sign in to get started."
+
+[js.login]
+login = "Continue"
+loggingIn = "Creating account..."
+
+[js.login.error]
+invalidValue = "3 to 16 characters: letters, numbers or _"
+requiredValue = "Enter a username"
+
+[js.login.offline]
+invalidTitle = "Invalid username"
+invalidDesc = "The username must be 3 to 16 characters and contain only letters, numbers or _."
+
+[js.landing.serverStatus]
+server = "Server"
+players = "Players"
+
+[js.rx.code]
+connecting = "Connecting..."
+invalid = "✗ Invalid code"
+ready = "✓ {name}"

@@ -224,6 +224,9 @@ let win
 
 function createWindow() {
 
+    // Now that the app is ready, app.getLocale() is reliable: reload texts in the system language.
+    LangLoader.setupLanguage()
+
     win = new BrowserWindow({
         width: 980,
         height: 552,

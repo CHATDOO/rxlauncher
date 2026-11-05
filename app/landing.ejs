@@ -5,7 +5,7 @@
                 <img id="image_seal" src="assets/images/SealCircle.png"/>
                 <div id="brandInfoWrapper">
                     <span id="brandTitle">RXCORP</span>
-                    <span id="brandStatus"><span id="brandStatusDot"></span>SERVEURS ACTIFS</span>
+                    <span id="brandStatus"><span id="brandStatusDot"></span><%- lang('landing.brandStatus') %></span>
                 </div>
                 <div id="updateAvailableTooltip"><%- lang('landing.updateAvailableTooltip') %></div>
             </div>
@@ -68,16 +68,16 @@
             </div>
         </div>
     </div>
-    <div id="lower">
-        <div id="left">
-            <div class="bot_wrapper">
-                <div id="content">
-                    <div id="server_status_wrapper">
-                        <span class="bot_label" id="landingPlayerLabel"><%- lang('landing.serverStatus') %></span>
-                        <span id="player_count"><%- lang('landing.serverStatusPlaceholder') %></span>
-                    </div>
-                    <div class="bot_divider"></div>
-                    <div id="mojangStatusWrapper">
+    <div id="lower" class="rx4-lower">
+        <section class="rx4-hero">
+            <button id="server_selection_button" class="rx4-title" title="<%- lang('landing.launchButtonPlaceholder') %>"><%- lang('landing.launchButtonPlaceholder') %></button>
+            <div class="rx4-meta">
+                <span id="rxServerMeta"></span>
+                <div id="server_status_wrapper">
+                    <span class="bot_label" id="landingPlayerLabel"><%- lang('landing.serverStatus') %></span>
+                    <span id="player_count"><%- lang('landing.serverStatusPlaceholder') %></span>
+                </div>
+                <div id="mojangStatusWrapper">
                         <span class="bot_label"><%- lang('landing.mojangStatus') %></span>
                         <span id="mojang_status_icon">&#8226;</span>
                         <div id="mojangStatusTooltip">
@@ -94,52 +94,38 @@
                                 <!-- Non Essential Mojang services are populated here. -->
                             </div>
                         </div>
-                    </div>
                 </div>
             </div>
-        </div>
-        <div id="center">
-            <div class="bot_wrapper">
-                <div id="content">
-                    <button id="newsButton">
-                        <!--<img src="assets/images/icons/arrow.svg" id="newsButtonSVG"/>-->
-                        <div id="newsButtonAlert" style="display: none;"></div>
-                        <svg id="newsButtonSVG" viewBox="0 0 24.87 13.97">
-                            <defs>
-                                <style>.arrowLine{fill:none;stroke:#FFF;stroke-width:2px;}</style>
-                            </defs>
-                            <polyline class="arrowLine" points="0.71 13.26 12.56 1.41 24.16 13.02"/>
-                        </svg>
-                        &#10;<span id="newsButtonText"><%- lang('landing.newsButton') %></span>
-                    </button>
+            <div id="launch_content" class="rx4-actions">
+                <button id="launch_button"><%- lang('landing.launchButton') %></button>
+                <div id="navServerCodeContainer">
+                    <label class="navServerCodeLabel" for="navServerCodeInput"><%- lang('landing.codeLabel') %></label>
+                    <input id="navServerCodeInput" type="text" placeholder="<%- lang('landing.codePlaceholder') %>" autocomplete="off" spellcheck="false" />
+                    <button id="navServerCodeSyncBtn"><%- lang('landing.codeSync') %></button>
+                    <span id="navServerCodeStatus"></span>
                 </div>
             </div>
-        </div>
-        <div id="right">
-            <div class="bot_wrapper">
-                <div id="launch_content">
-                    <button id="launch_button"><%- lang('landing.launchButton') %></button>
-                    <div class="bot_divider"></div>
-                    <button id="server_selection_button" class="bot_label"><%- lang('landing.launchButtonPlaceholder') %></button>
-                    <div class="bot_divider"></div>
-                    <div id="navServerCodeContainer">
-                        <span class="navServerCodeLabel">CODE :</span>
-                        <input id="navServerCodeInput" type="text" placeholder="RX-8" autocomplete="off" spellcheck="false" />
-                        <button id="navServerCodeSyncBtn">SYNC</button>
-                        <span id="navServerCodeStatus"></span>
-                    </div>
+            <div id="launch_details" class="rx4-progress">
+                <div id="launch_details_left">
+                    <span id="launch_progress_label">0%</span>
                 </div>
-                <div id="launch_details">
-                    <div id="launch_details_left">
-                        <span id="launch_progress_label">0%</span>
-                        <div class="bot_divider"></div>
-                    </div>
-                    <div id="launch_details_right">
-                        <progress id="launch_progress" value="22" max="100"></progress>
-                        <span id="launch_details_text" class="bot_label"><%- lang('landing.launchDetails') %></span>
-                    </div>
+                <div id="launch_details_right">
+                    <progress id="launch_progress" value="22" max="100"></progress>
+                    <span id="launch_details_text" class="bot_label"><%- lang('landing.launchDetails') %></span>
                 </div>
             </div>
+        </section>
+        <div class="rx4-news">
+            <button id="newsButton">
+                <div id="newsButtonAlert" style="display: none;"></div>
+                <svg id="newsButtonSVG" viewBox="0 0 24.87 13.97">
+                    <defs>
+                        <style>.arrowLine{fill:none;stroke:#FFF;stroke-width:2px;}</style>
+                    </defs>
+                    <polyline class="arrowLine" points="0.71 13.26 12.56 1.41 24.16 13.02"/>
+                </svg>
+                <span id="newsButtonText"><%- lang('landing.newsButton') %></span>
+            </button>
         </div>
     </div>
     <div id="newsContainer">

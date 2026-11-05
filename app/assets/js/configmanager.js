@@ -97,7 +97,7 @@ const DEFAULT_CONFIG = {
     clientToken: null,
     selectedServer: null, // Resolved
     selectedAccount: null,
-    serverCode: 'RX-8',
+    serverCode: '',
     authenticationDatabase: {},
     modConfigurations: [],
     javaConfig: {},
@@ -315,7 +315,7 @@ exports.setSelectedServer = function(serverID){
  * @returns {string} The Pelican server code.
  */
 exports.getServerCode = function(def = false){
-    return (!def && config.serverCode) ? config.serverCode : 'RX-8'
+    return (!def && config.serverCode) ? config.serverCode : ''
 }
 
 /**
@@ -377,6 +377,25 @@ exports.addMojangAuthAccount = function(uuid, accessToken, username, displayName
         type: 'mojang',
         accessToken,
         username: username.trim(),
+        uuid: uuid.trim(),
+        displayName: displayName.trim()
+    }
+    return config.authenticationDatabase[uuid]
+}
+
+/**
+ * Adds an offline (cracked) account. No authentication; works on servers with online-mode=false.
+ *
+ * @param {string} uuid Offline UUID (Java nameUUIDFromBytes("OfflinePlayer:" + name)).
+ * @param {string} displayName The player name.
+ * @returns {Object} The account object created by this action.
+ */
+exports.addOfflineAuthAccount = function(uuid, displayName){
+    config.selectedAccount = uuid
+    config.authenticationDatabase[uuid] = {
+        type: 'offline',
+        accessToken: '0',
+        username: displayName.trim(),
         uuid: uuid.trim(),
         displayName: displayName.trim()
     }

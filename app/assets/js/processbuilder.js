@@ -749,7 +749,7 @@ class ProcessBuilder {
                             val = this.authUser.accessToken
                             break
                         case 'user_type':
-                            val = this.authUser.type === 'microsoft' ? 'msa' : 'mojang'
+                            val = this.authUser.type === 'microsoft' ? 'msa' : (this.authUser.type === 'offline' ? 'legacy' : 'mojang')
                             break
                         case 'version_type':
                             val = this.vanillaManifest.type
@@ -838,7 +838,7 @@ class ProcessBuilder {
                         val = this.authUser.accessToken
                         break
                     case 'user_type':
-                        val = this.authUser.type === 'microsoft' ? 'msa' : 'mojang'
+                        val = this.authUser.type === 'microsoft' ? 'msa' : (this.authUser.type === 'offline' ? 'legacy' : 'mojang')
                         break
                     case 'user_properties': // 1.8.9 and below.
                         val = '{}'

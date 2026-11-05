@@ -101,6 +101,16 @@ async function showMainUI(data){
             document.body.style.backgroundImage = `url('assets/images/backgrounds/${document.body.getAttribute('bkid')}.jpg')`
             $('#main').show()
 
+            // Remove cached servers the player has no valid code for (privacy).
+            DistroAPI.pruneUnauthorizedServers().then(async changed => {
+                if(!changed) return
+                console.info('[RXLauncher] Removed servers without a valid code from the local list.')
+                const distro = await DistroAPI.getDistribution()
+                const serv = distro.getServerById(ConfigManager.getSelectedServer()) || distro.getMainServer() || (distro.servers[0] || null)
+                updateSelectedServer(serv)
+                if(typeof refreshServerStatus === 'function') refreshServerStatus(true)
+            }).catch(err => console.error('Server list cleanup failed:', err))
+
             const isLoggedIn = Object.keys(ConfigManager.getAuthAccounts()).length > 0
 
             // If this is enabled in a development environment we'll get ratelimited.

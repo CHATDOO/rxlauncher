@@ -162,7 +162,12 @@ function updateSelectedAccount(authUser){
             username = authUser.displayName
         }
         if(authUser.uuid != null){
-            document.getElementById('avatarContainer').style.backgroundImage = `url('https://mc-heads.net/body/${authUser.uuid}/right')`
+            const avatarEl = document.getElementById('avatarContainer')
+            require('./assets/js/skinhead').headFor(authUser, 128).then(url => {
+                if (url && ConfigManager.getSelectedAccount()?.uuid === authUser.uuid) {
+                    avatarEl.style.backgroundImage = `url('${url}')`
+                }
+            })
         }
     }
     user_text.innerHTML = username
@@ -176,7 +181,13 @@ function updateSelectedServer(serv){
     }
     ConfigManager.setSelectedServer(serv != null ? serv.rawServer.id : null)
     ConfigManager.save()
-    server_selection_button.innerHTML = '&#8226; ' + (serv != null ? serv.rawServer.name : Lang.queryJS('landing.noSelection'))
+    server_selection_button.textContent = serv != null ? serv.rawServer.name : Lang.queryJS('landing.noSelection')
+    const rxMeta = document.getElementById('rxServerMeta')
+    if (rxMeta) {
+        // "Serveur Pelican towhee (Forge 1.21)" -> "Forge 1.21"; fallback to the MC version
+        const m = serv != null ? /\(([^)]+)\)\s*$/.exec(serv.rawServer.description || '') : null
+        rxMeta.textContent = serv == null ? '' : (m ? m[1] : `Minecraft ${serv.rawServer.minecraftVersion}`)
+    }
     if(getCurrentView() === VIEWS.settings){
         animateSettingsTabRefresh()
     }
@@ -640,6 +651,7 @@ async function dlAsync(login = true) {
         try {
             // Build Minecraft process.
             proc = pb.build()
+            if (window.rxBackdrop) window.rxBackdrop.pause() // no video decoding while the game runs
 
             // Safety timeout: restore Play button after 8 seconds if game launch pattern wasn't captured in stdout
             launchSafetyTimeout = setTimeout(() => {
@@ -668,6 +680,7 @@ async function dlAsync(login = true) {
             }
             proc.on('close', onProcessExit)
             proc.on('exit', onProcessExit)
+            proc.on('exit', () => { if (window.rxBackdrop) window.rxBackdrop.resume() })
 
             setLaunchDetails(Lang.queryJS('landing.dlAsync.doneEnjoyServer'))
 
@@ -711,47 +724,16 @@ let newsGlideCount = 0
  * @param {boolean} up True to slide up, otherwise false. 
  */
 function slide_(up){
-    const lCUpper = document.querySelector('#landingContainer > #upper')
-    const lCLLeft = document.querySelector('#landingContainer > #lower > #left')
-    const lCLCenter = document.querySelector('#landingContainer > #lower > #center')
-    const lCLRight = document.querySelector('#landingContainer > #lower > #right')
-    const newsBtn = document.querySelector('#landingContainer > #lower > #center #content')
+    // RXCORP layout: the hero/top bar animate out via CSS (.rx4-news-open),
+    // the news panel slides in, and the news button docks at the top as "close".
     const landingContainer = document.getElementById('landingContainer')
     const newsContainer = document.querySelector('#landingContainer > #newsContainer')
 
     newsGlideCount++
+    setTimeout(() => { newsGlideCount-- }, 2000)
 
-    if(up){
-        lCUpper.style.top = '-200vh'
-        lCLLeft.style.top = '-200vh'
-        lCLCenter.style.top = '-200vh'
-        lCLRight.style.top = '-200vh'
-        newsBtn.style.top = '130vh'
-        newsContainer.style.top = '0px'
-        //date.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric'})
-        //landingContainer.style.background = 'rgba(29, 29, 29, 0.55)'
-        landingContainer.style.background = 'rgba(0, 0, 0, 0.50)'
-        setTimeout(() => {
-            if(newsGlideCount === 1){
-                lCLCenter.style.transition = 'none'
-                newsBtn.style.transition = 'none'
-            }
-            newsGlideCount--
-        }, 2000)
-    } else {
-        setTimeout(() => {
-            newsGlideCount--
-        }, 2000)
-        landingContainer.style.background = null
-        lCLCenter.style.transition = null
-        newsBtn.style.transition = null
-        newsContainer.style.top = '100%'
-        lCUpper.style.top = '0px'
-        lCLLeft.style.top = '0px'
-        lCLCenter.style.top = '0px'
-        lCLRight.style.top = '0px'
-        newsBtn.style.top = '25px'
-    }
+    landingContainer.classList.toggle('rx4-news-open', up)
+    newsContainer.style.top = up ? '0px' : '100%'
 }
 
 // Bind news button.
@@ -762,7 +744,7 @@ document.getElementById('newsButton').onclick = () => {
         $('#newsContainer *').attr('tabindex', '-1')
     } else {
         $('#landingContainer *').attr('tabindex', '-1')
-        $('#newsContainer, #newsContainer *, #lower, #lower #center *').removeAttr('tabindex')
+        $('#newsContainer, #newsContainer *, #lower, #lower .rx4-news, #lower .rx4-news *').removeAttr('tabindex')
         if(newsAlertShown){
             $('#newsButtonAlert').fadeOut(2000)
             newsAlertShown = false
@@ -1091,7 +1073,7 @@ async function syncServerFromNavbarCode(codeVal) {
     if (navServerCodeStatus) {
         navServerCodeStatus.style.display = 'inline'
         navServerCodeStatus.style.color = 'rgba(255, 255, 255, 0.85)'
-        navServerCodeStatus.textContent = 'Connexion...'
+        navServerCodeStatus.textContent = Lang.queryJS('rx.code.connecting')
     }
 
     try {
@@ -1129,7 +1111,7 @@ async function syncServerFromNavbarCode(codeVal) {
         if (navServerCodeStatus) {
             navServerCodeStatus.style.display = 'inline'
             navServerCodeStatus.style.color = '#10b981'
-            navServerCodeStatus.textContent = `✓ ${targetRaw.name}`
+            navServerCodeStatus.textContent = Lang.queryJS('rx.code.ready', { name: targetRaw.name })
             setTimeout(() => {
                 if (navServerCodeStatus) navServerCodeStatus.style.display = 'none'
             }, 5000)
@@ -1139,7 +1121,7 @@ async function syncServerFromNavbarCode(codeVal) {
         if (navServerCodeStatus) {
             navServerCodeStatus.style.display = 'inline'
             navServerCodeStatus.style.color = '#ef4444'
-            navServerCodeStatus.textContent = '✗ Code invalide'
+            navServerCodeStatus.textContent = Lang.queryJS('rx.code.invalid')
             setTimeout(() => {
                 if (navServerCodeStatus) navServerCodeStatus.style.display = 'none'
             }, 4000)
@@ -1149,7 +1131,7 @@ async function syncServerFromNavbarCode(codeVal) {
 
 if (navServerCodeInput) {
     // Populate with saved server code
-    const savedCode = ConfigManager.getServerCode ? ConfigManager.getServerCode() : 'RX-8'
+    const savedCode = ConfigManager.getServerCode ? ConfigManager.getServerCode() : ''
     navServerCodeInput.value = savedCode
 
     navServerCodeInput.addEventListener('keydown', (e) => {

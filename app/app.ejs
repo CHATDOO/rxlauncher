@@ -5,6 +5,8 @@
     <script src="./assets/js/scripts/uicore.js"></script>
     <script src="./assets/js/scripts/uibinder.js"></script>
     <link type="text/css" rel="stylesheet" href="./assets/css/launcher.css">
+    <link type="text/css" rel="stylesheet" href="./assets/css/rx4.css">
+    <script src="./assets/js/scripts/rx-backdrop.js"></script>
     <style>
         body {
             /*background: url('assets/images/backgrounds/<%=bkid%>.jpg') no-repeat center center fixed;*/
@@ -27,6 +29,11 @@
     </style>
 </head>
 <body bkid="<%=bkid%>">
+    <div id="rxBackdrop" aria-hidden="true">
+        <div class="rxbg"></div>
+        <div class="rxbg"></div>
+    </div>
+    <div id="rxShade" aria-hidden="true"></div>
     <%- include('frame') %>
     <div id="main">
         <%- include('welcome') %>
