@@ -4,7 +4,8 @@ const semver = require('semver')
 
 const DropinModUtil  = require('./assets/js/dropinmodutil')
 const { MSFT_OPCODE, MSFT_REPLY_TYPE, MSFT_ERROR } = require('./assets/js/ipcconstants')
-const { MojangRestAPI, getServerStatus } = require('helios-core/mojang')
+// MojangRestAPI & getServerStatus are declared globally by landing.js (classic scripts
+// share one global scope; re-declaring them here throws and kills landing.js entirely).
 
 const settingsState = {
     invalid: new Set()
