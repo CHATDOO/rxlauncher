@@ -1,58 +1,64 @@
-# module du helios launcher
-name: Launcher Build
+# RXLauncher - builds for macOS, Linux and Windows.
+# Runs only on demand (Actions tab > "Build RXLauncher" > Run workflow) or when a tag like v3.3.0 is pushed.
+# Results are downloadable as artifacts on the run page. Nothing is published automatically.
+name: Build RXLauncher
+
 on:
+  workflow_dispatch:
   push:
-    branches: [ master ]
+    tags: ['v*']
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  create-release:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Get version
-        run: echo "version=$(jq -r .version package.json)" >> $GITHUB_ENV
-      
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.version }}
-          release_name: release ${{ env.version }}
-          draft: false
-          prerelease: ${{ contains(env.version, 'beta') || contains(env.version, 'alpha') }}
-
-  build-launcher:
-    needs: create-release
-    runs-on: ${{ matrix.os }}
-
+  build:
     strategy:
+      fail-fast: false
       matrix:
-        os: [macos-14, ubuntu-latest, windows-latest]
+        include:
+          - os: macos-14
+            name: macos
+            args: --mac dmg zip --x64 --arm64
+          - os: ubuntu-latest
+            name: linux
+            args: --linux AppImage --x64
+          - os: windows-latest
+            name: windows
+            args: --win nsis portable --x64
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
 
     steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v1
+      - uses: actions/checkout@v4
 
-      - name: Set up Node
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18.x
+          node-version: 22
+          cache: npm
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.x
-
-      - name: Install Dependencies
+      # postinstall also applies scripts/patch-helios.js (Java detection fix)
+      - name: Install dependencies
         run: npm ci
-        shell: bash
 
       - name: Build
-        env:
-          GH_TOKEN: ${{ secrets.github_token }}
-        run: npm run build
         shell: bash
+        env:
+          # No Apple/Windows signing certificate: build unsigned (macOS arm64 gets an ad-hoc signature).
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npx electron-builder build ${{ matrix.args }} --publish never -c.portable.artifactName='RXLauncher-Portable-${version}.${ext}'
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: rxlauncher-${{ matrix.name }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            dist/*.dmg
+            dist/*.zip
+            dist/*.AppImage
+            dist/*.exe
+            dist/*.blockmap
+            dist/latest*.yml
